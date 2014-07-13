@@ -1,0 +1,88 @@
+PROJ_NAME=cpp_led
+MCTYPE=STM32F10X_CL
+
+LINK=$(CXX)
+
+USE_OX = y
+USE_MICRORL = y
+USE_FREERTOS = y
+USE_USB_OTG = y
+NO_STDLIB = n
+
+CFLAGS_ADD := -DHSE_VALUE=8000000
+#LDSCRIPT = $(STMLD)/stm32f107rb_128k_64k.ld
+# TEST:
+LDSCRIPT = stm32f107rb_128k_64k_x.ld
+
+SRCS = main.cpp
+SRCS += localfun.cpp
+SRCS += ox_common.cpp
+#SRCS += usarttty.c
+#SRCS += stm32f1xx_it.c
+SRCS += system_stm32f10x_cl_72_8HSE.c
+#SRCS += newlib_stubs.c # sbrk
+SRCS += microrl.c # cmdline
+
+
+# USB: local:
+SRCS += usb_bsp.c
+SRCS += usbd_cdc_vcp.c
+SRCS += usbd_desc.c
+SRCS += usbd_usr.c
+# USB: lib:
+SRCS += usb_dcd.c
+SRCS += usb_core.c
+SRCS += usbd_core.c
+SRCS += usbd_req.c
+SRCS += usbd_ioreq.c
+SRCS += usbd_cdc_core.c
+SRCS += usb_dcd_int.c
+
+# stm32lib sources
+#SRCS += startup_stm32f10x_cl.s # add startup file to build
+# TEST:
+SRCS += startup_stm32f10x_cl_x.s # add startup file to build
+#SRCS +=  stm32f10x_adc.c
+#SRCS +=  stm32f10x_bkp.c
+#SRCS +=  stm32f10x_can.c
+#SRCS +=  stm32f10x_cec.c
+#SRCS +=  stm32f10x_crc.c
+#SRCS +=  stm32f10x_dac.c
+#SRCS +=  stm32f10x_dbgmcu.c
+#SRCS +=  stm32f10x_dma.c
+#SRCS +=  stm32f10x_exti.c
+#SRCS +=  stm32f10x_flash.c
+#SRCS +=  stm32f10x_fsmc.c
+SRCS +=  stm32f10x_gpio.c
+#SRCS +=  stm32f10x_i2c.c
+#SRCS +=  stm32f10x_iwdg.c
+SRCS +=  stm32f10x_misc.c
+#SRCS +=  stm32f10x_pwr.c
+SRCS +=  stm32f10x_rcc.c
+#SRCS +=  stm32f10x_rtc.c
+#SRCS +=  stm32f10x_sdio.c
+#SRCS +=  stm32f10x_spi.c
+#SRCS +=  stm32f10x_tim.c
+#SRCS +=  stm32f10x_usart.c
+#SRCS +=  stm32f10x_wwdg.c
+
+# FreeRTOS: rtos/Source -> /usr/share/FreeRTOS/Source
+#SRCS += croutine.c
+SRCS += list.c
+SRCS += queue.c
+SRCS += tasks.c
+SRCS += timers.c
+# symlink to Source/portable/GCC/ARM_CM3/port.c <<< change
+SRCS += heap_2.c
+# symlink to Source/portable/GCC/ARM_CM4F/port.c <<< change
+SRCS += port.c
+# Beware: portmacro.h is symlink to
+#   rtos/Source/portable/GCC/ARM_CM3/portmacro.h or CM4F
+
+###################################################
+
+include common_cortex.mk
+
+include $(wildcard $(DEPSDIR)/*.d)
+#
+

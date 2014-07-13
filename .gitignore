@@ -1,0 +1,24 @@
+# Object files
+*.o
+*.obj
+*.elf
+
+# Libraries
+*.lib
+*.a
+
+# Shared objects (inc. Windows DLLs)
+*.so
+*.so.*
+
+# Executables
+*.bin
+*.out
+*.hex
+
+# dep files
+*.d
+
+# vim swaps
+.*.swp
+
