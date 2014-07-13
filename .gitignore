@@ -16,6 +16,11 @@
 *.out
 *.hex
 
+# info files
+*.map
+*.log
+*.lst
+
 # dep files
 *.d
 

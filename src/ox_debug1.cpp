@@ -4,184 +4,13 @@
 #include <queue.h>
 #include <stdlib.h>
 #include <errno.h>
-#include "localfun.h"
+
+#include <ox_debug1.h>
 
 // general buffers
 char gbuf_a[GBUF_SZ];
 char gbuf_b[GBUF_SZ]; // and log too
-
-int user_vars[N_USER_VARS] = { 0x55555555, 0, 0, 0 };
-
-void taskYieldFun()
-{
-  taskYIELD();
-}
-
-// int outpins_init( OutPins *oup )
-// {
-//   if( oup->n < 1  || oup->n + oup->start > PORT_BITS ) {
-//     return 0;
-//   }
-//
-//   oup->mask = ((uint16_t)(0xFFFF) << (PORT_BITS - oup->n));
-//   oup->mask >>= (PORT_BITS - oup->n - oup->start);
-//
-//   GPIO_InitTypeDef  gpio;
-//   // RCC_APB2PeriphClockCmd( RCC_APB2Periph_GPIOC, ENABLE ); // TODO: common
-//   gpio.GPIO_Pin   = oup->mask;
-//   gpio.GPIO_Mode  = GPIO_Mode_Out_PP;
-//   gpio.GPIO_Speed = GPIO_Speed_50MHz;
-//   // gpio_d.GPIO_PuPd  = GPIO_PuPd_NOPULL; // F4?
-//   GPIO_Init( oup->GPIOx, &gpio );
-//   return 1;
-// }
-//
-// void outpins_set( const OutPins *oup, uint16_t v )
-// {
-//   v <<= oup->start;
-//   oup->GPIOx->ODR = ( v & oup->mask ) | ( oup->GPIOx->ODR & (~oup->mask) );
-// }
-//
-// void outpins_on( const OutPins *oup, uint16_t v )
-// {
-//   v <<= oup->start;
-//   oup->GPIOx->ODR |= ( v & oup->mask );
-// }
-//
-// void outpins_off( const OutPins *oup, uint16_t v )
-// {
-//   v <<= oup->start;
-//   oup->GPIOx->ODR &= ~( v & oup->mask );
-// }
-//
-// void outpins_toggle( const OutPins *oup, uint16_t v )
-// {
-//   v <<= oup->start;
-//   oup->GPIOx->ODR ^= ( v & oup->mask );
-// }
-
-// OutPins *LEDS = 0;
-//
-// int  leds_init()
-// {
-//   if( !LEDS ) {
-//     return 0;
-//   }
-//   return outpins_init( LEDS );
-// }
-//
-// void leds_set( uint16_t v )
-// {
-//   if( !LEDS ) {
-//     return;
-//   }
-//   outpins_set( LEDS, v );
-// }
-//
-// void leds_on(  uint16_t v )
-// {
-//   if( !LEDS ) {
-//     return;
-//   }
-//   outpins_on( LEDS, v );
-// }
-//
-// void leds_off( uint16_t v )
-// {
-//   if( !LEDS ) {
-//     return;
-//   }
-//   outpins_off( LEDS, v );
-// }
-//
-// void leds_toggle( uint16_t v )
-// {
-//   if( !LEDS ) {
-//     return;
-//   }
-//   outpins_toggle( LEDS, v );
-// }
-
-void die4led( uint16_t n )
-{
-  // leds_set( n );
-  while(1) {
-    delay_bad_ms( 200 );
-    // leds_toggle( BIT0 );
-  }
-}
-
-void GPIO_WriteBits( GPIO_TypeDef* GPIOx, uint16_t PortVal, uint16_t mask )
-{
-  GPIOx->ODR = ( PortVal & mask ) | ( GPIOx->ODR & (~mask) );
-}
-
-
-void delay_ms( uint32_t ms )
-{
-  vTaskDelay( ms / portTICK_RATE_MS );
-}
-
-
-void delay_bad_n( uint32_t dly )
-{
-  for( uint32_t i=0; i<dly; ++i ) {
-    __asm volatile ( "nop;");
-  }
-}
-
-void delay_bad_s( uint32_t s )
-{
-  uint32_t n = s * T_S_MUL;
-  for( uint32_t i=0; i<n; ++i ) {
-    __asm volatile ( "nop;");
-  }
-}
-
-void delay_bad_ms( uint32_t ms )
-{
-  uint32_t n = ms * T_MS_MUL;
-  /*__IO*/
-  // for(  uint32_t i = n; i>0; --i ) {
-  for(  uint32_t i = 0; i<n; ++i ) {
-    __asm volatile ( "nop;");
-  }
-}
-
-void delay_mcs( uint32_t mcs )
-{
-  int ms = mcs / 1000;
-  int mcs_r = mcs % 1000;
-  if( ms )
-    delay_ms( ms );
-  if( mcs_r )
-    delay_bad_mcs( mcs_r );
-}
-
-
-
-// void BOARD_initBtn(void)
-// {
-//   /*
-//   GPIO_InitTypeDef  gpio_a;
-//   RCC_AHB1PeriphClockCmd( RCC_AHB1Periph_GPIOA, ENABLE );
-//   gpio_a.GPIO_Pin   = GPIO_Pin_0;
-//   gpio_a.GPIO_Mode  = GPIO_Mode_IN;
-//   gpio_a.GPIO_OType = GPIO_OType_PP;
-//   gpio_a.GPIO_Speed = GPIO_Speed_25MHz;
-//   gpio_a.GPIO_PuPd  = GPIO_PuPd_DOWN;
-//   GPIO_Init( GPIOA, &gpio_a );
-//   */
-// }
-
-// uint8_t BOARD_btnState(void)
-// {
-//  return GPIO_ReadInputDataBit( GPIOA, GPIO_Pin_0 );
-// }
-
-const char hex_digits[] = "0123456789ABCDEFG";
-const char dec_digits[] = "0123456789???";
-
+int user_vars[N_USER_VARS];
 
 char* str2addr( const char *str )
 {
@@ -198,54 +27,7 @@ char* str2addr( const char *str )
   return (char*)(BAD_ADDR);
 }
 
-char* char2hex( char c, char *s )
-{
-  if( s != 0 ) {
-    s[0] = hex_digits[ (uint8_t)(c) >> 4 ];
-    s[1] = hex_digits[ c & 0x0F ];
-    s[2] = 0;
-  }
-  return s;
-}
 
-char* word2hex( uint32_t d,  char *s )
-{
-  if( s != 0 ) {
-    int i;
-    for( i=7; i>=0; --i ) {
-      s[i] = hex_digits[ d & 0x0F ];
-      d >>= 4;
-    }
-    s[8] = 0;
-  }
-  return s;
-}
-
-char* i2dec( int n, char *s )
-{
-  static char sbuf[INT_STR_SZ];
-  char tbuf[24];
-  unsigned u;
-  if( !s ) {
-    s = sbuf;
-  }
-  char *bufptr = s, *tmpptr = tbuf + 1;
-  *tbuf = '\0';
-
-  if( n < 0 ){ //  sign
-    u = ( (unsigned)(-(1+n)) ) + 1; // INT_MIN handling
-    *bufptr++ = '-';
-  } else {
-    u=n;
-  }
-
-  do {
-    *tmpptr++ = dec_digits[ u % 10 ];
-  } while( u /= 10 );
-
-  while( ( *bufptr++ = *--tmpptr ) != '\0' ) /* NOP */;
-  return s;
-}
 
 void dump8( const void *addr, int n )
 {
@@ -271,31 +53,6 @@ void dump8( const void *addr, int n )
   pr( NL "-------------------------" NL );
 }
 
-int pr_d( int d )
-{
-  char b[32];
-  return pr( i2dec( d, b ) );
-}
-
-int pr_h( uint32_t d )
-{
-  char b[12];
-  return pr( word2hex( d, b ) );
-}
-
-int pr_sd( const char *s, int d )
-{
-  pr( s );
-  pr_d( d );
-  return pr( NL );
-}
-
-int pr_sh( const char *s, int d )
-{
-  pr( s );
-  pr_h( d );
-  return pr( NL );
-}
 
 int log_buf_idx = 0;
 

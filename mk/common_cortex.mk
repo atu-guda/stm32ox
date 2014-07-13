@@ -90,7 +90,7 @@ endif
 
 ifeq "$(USE_FREERTOS)" "y"
   SRCPATHS += $(RTSRC) $(RTDIR)
-  ALLFLAGS += -I$(RTINC)
+  ALLFLAGS += -I$(RTINC) -DUSE_FREERTOS
 endif
 
 ifeq "$(USE_MICRORL)" "y"
