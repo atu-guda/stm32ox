@@ -9,10 +9,12 @@ USE_FREERTOS = y
 USE_USB_OTG = y
 NO_STDLIB = n
 
+# TODO: copy to main location
+OXDIR = /home/atu/proj/stm32/ox
+
 CFLAGS_ADD := -DHSE_VALUE=8000000
 #LDSCRIPT = $(STMLD)/stm32f107rb_128k_64k.ld
-# TEST:
-LDSCRIPT = stm32f107rb_128k_64k_x.ld
+LDSCRIPT = $(OXDIR)/ld/stm32f107rb_128k_64k_x.ld
 
 SRCS = main.cpp
 SRCS += localfun.cpp
@@ -81,7 +83,7 @@ SRCS += port.c
 
 ###################################################
 
-include common_cortex.mk
+include $(OXDIR)/mk/common_cortex.mk
 
 include $(wildcard $(DEPSDIR)/*.d)
 #

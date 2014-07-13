@@ -11,7 +11,7 @@ STMINC=$(STMDIR)/inc
 STMSRC=$(STMDIR)/src
 STMLD=$(STMDIR)/ld
 
-OXDIR := ox
+# OXDIR := ox // from Makefile
 OXINC = $(OXDIR)/inc
 OXSRC = $(OXDIR)/src
 
@@ -106,7 +106,7 @@ endif
 
 vpath %.c   $(SRCPATHS)
 vpath %.cpp $(SRCPATHS)
-vpath %.s   $(STMSRC)
+vpath %.s   $(OXSRC)/startup $(STMSRC)
 vpath %.o   $(OBJDIR)
 vpath %.d   $(DEPSDIR)
 
@@ -130,7 +130,7 @@ dirs:
 
 proj:  dirs $(PROJ_NAME).elf
 
-$(OBJDIR)/*.o:  Makefile common_cortex.mk
+$(OBJDIR)/*.o:  Makefile $(OXDIR)/mk/common_cortex.mk
 
 
 $(OBJDIR)/%.o: %.c
@@ -142,7 +142,7 @@ $(OBJDIR)/%.o: %.cpp
 	mv $(OBJDIR)/$*.d $(DEPSDIR)
 
 $(OBJDIR)/%.o: %.s
-	$(CC) $(CFLAGS) -c -o $@ $<
+	$(CC) $(CFLAGS) -I$(OXSRC)/startup -c -o $@ $<
 
 
 $(PROJ_NAME).elf: $(OBJS1)
