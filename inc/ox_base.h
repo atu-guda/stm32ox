@@ -69,6 +69,7 @@ void devPinConf( GPIO_TypeDef* GPIOx, GPIOMode_TypeDef mode, uint16_t pins );
 /** write some (mask based) bits to port, keep all other */
 void GPIO_WriteBits( GPIO_TypeDef* GPIOx, uint16_t PortVal, uint16_t mask );
 
+
 extern const char hex_digits[];
 extern const char dec_digits[];
 // 64/log_2[10] \approx 20

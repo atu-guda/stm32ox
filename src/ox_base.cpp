@@ -54,11 +54,16 @@ void taskYieldFun()
 
 void die4led( uint16_t n )
 {
-  // leds_set( n );
-  while(1) {
-    delay_bad_ms( 200 );
-    // leds_toggle( BIT0 );
+  #ifdef BOARD_N_LEDS
+    leds.set( n );
+    while(1) {
+      delay_bad_ms( 200 );
+      leds.toggle( BIT0 );
+    }
   }
+  #else
+  while(1) { /* NOP */ };
+  #endif
 }
 
 void GPIO_WriteBits( GPIO_TypeDef* GPIOx, uint16_t PortVal, uint16_t mask )

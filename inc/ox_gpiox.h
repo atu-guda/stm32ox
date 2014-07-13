@@ -148,6 +148,7 @@ void DevBase<DevConf,DevMode>::initHW()
 
 }
 
+extern PinsOutX<DevGPIOC> leds;
 
 #endif
 
