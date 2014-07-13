@@ -55,6 +55,17 @@ inline void delay_bad_mcs( uint32_t mcs )
   }
 }
 
+// RCC registers for enable devices
+enum RCC_Bus { // indexes in RCC_enr
+  RCC_Bus0 = 0, RCC_AHB  = 0,
+  RCC_Bus1 = 1, RCC_APB1 = 1,
+  RCC_Bus2 = 2, RCC_APB2 = 2,
+  RCC_Bus3 = 3,
+  RCC_NBUS = 4
+};
+extern reg32 *const RCC_enr[RCC_Bus::RCC_NBUS];
+
+void devPinConf( GPIO_TypeDef* GPIOx, GPIOMode_TypeDef mode, uint16_t pins );
 /** write some (mask based) bits to port, keep all other */
 void GPIO_WriteBits( GPIO_TypeDef* GPIOx, uint16_t PortVal, uint16_t mask );
 

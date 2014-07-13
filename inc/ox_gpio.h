@@ -23,20 +23,8 @@
 
 #include <ox_base.h>
 
-// RCC registers for enable devices
-constexpr int RCC_BUS_N = 4;
-extern reg32 *const RCC_enr[RCC_BUS_N];
-
-void devPinConf( GPIO_TypeDef* GPIOx, GPIOMode_TypeDef mode, uint16_t pins );
-
 #ifdef STM32F1
 
-enum RCC_Bus { // indexes in RCC_enr
-  RCC_Bus0 = 0, RCC_AHB  = 0,
-  RCC_Bus1 = 1, RCC_APB1 = 1,
-  RCC_Bus2 = 2, RCC_APB2 = 2,
-  RCC_Bus3 = 3
-};
 
 struct GPIO_Info {
   GPIO_TypeDef *gpio;

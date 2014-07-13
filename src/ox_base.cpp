@@ -10,6 +10,39 @@
 
 #include <ox_base.h>
 
+#ifdef STM32F1
+
+// TODO: hide to something
+reg32 *const RCC_enr[RCC_Bus::RCC_NBUS] {
+  &(RCC->AHBENR),
+  &(RCC->APB1ENR),
+  &(RCC->APB2ENR),
+  0 // for F4...
+};
+
+// TODO: separate F1/F*
+void devPinConf( GPIO_TypeDef* GPIOx, GPIOMode_TypeDef mode, uint16_t pins )
+{
+  GPIO_InitTypeDef gp;
+  gp.GPIO_Pin = pins;
+  gp.GPIO_Speed = GPIO_Speed_50MHz; // TODO: config
+  gp.GPIO_Mode = mode;
+  GPIO_Init( GPIOx, &gp );
+}
+
+
+#else
+ #error "Only STM32F1xx supported now ;-( "
+
+void devPinConf( GPIO_TypeDef* GPIOx, GPIOMode_TypeDef mode, uint16_t pins )
+{
+  GPIO_InitTypeDef gp;
+  gp.GPIO_Pin = pins;
+  GPIO_Init( GPIOx, &gp );
+}
+
+#endif // STM32F1
+
 
 void taskYieldFun()
 {
