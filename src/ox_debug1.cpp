@@ -1,7 +1,4 @@
 #include "stm32f10x_conf.h"
-#include <FreeRTOS.h>
-#include <task.h>
-#include <queue.h>
 #include <stdlib.h>
 #include <errno.h>
 
@@ -116,8 +113,8 @@ int cmd_info( int argc, const char * const * argv )
   pr( NL );
   pr_sdx( errno );
   pr_sdx( SystemCoreClock );
-  int tick_count = xTaskGetTickCount();
-  pr_sdx( tick_count );
+  // int tick_count = xTaskGetTickCount();
+  // pr_sdx( tick_count );
   return 0;
 }
 

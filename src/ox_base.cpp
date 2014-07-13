@@ -1,16 +1,21 @@
 #include "stm32f10x_conf.h"
+#include <errno.h>
+
+#ifdef USE_FREERTOS
 #include <FreeRTOS.h>
 #include <task.h>
 #include <queue.h>
 #include <stdlib.h>
-#include <errno.h>
+#endif
 
 #include <ox_base.h>
 
 
 void taskYieldFun()
 {
+  #ifdef USE_FREERTOS
   taskYIELD();
+  #endif
 }
 
 
@@ -31,7 +36,11 @@ void GPIO_WriteBits( GPIO_TypeDef* GPIOx, uint16_t PortVal, uint16_t mask )
 
 void delay_ms( uint32_t ms )
 {
+  #ifdef USE_FREERTOS
   vTaskDelay( ms / portTICK_RATE_MS );
+  #else
+  delay_bad_ms( ms );
+  #endif
 }
 
 
@@ -53,8 +62,6 @@ void delay_bad_s( uint32_t s )
 void delay_bad_ms( uint32_t ms )
 {
   uint32_t n = ms * T_MS_MUL;
-  /*__IO*/
-  // for(  uint32_t i = n; i>0; --i ) {
   for(  uint32_t i = 0; i<n; ++i ) {
     __asm volatile ( "nop;");
   }

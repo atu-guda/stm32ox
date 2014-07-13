@@ -33,6 +33,8 @@ int pr_sh( const char *s, int d );
 #define pr_sdx(x) pr_sd( " " #x "= ", (uint32_t)(x) );
 #define pr_shx(x) pr_sh( " " #x "= ", (uint32_t)(x) );
 
+int  default_microrl_exec( int argc, const char * const * argv );
+
 
 #ifdef __cplusplus
 }
