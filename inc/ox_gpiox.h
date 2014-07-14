@@ -144,7 +144,6 @@ void DevBase<DevConf,DevMode>::initHW()
     }
     ++i;
   }
-  // std::cout << std::endl;
 
 }
 

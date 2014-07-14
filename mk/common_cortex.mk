@@ -104,6 +104,23 @@ ifeq "$(USE_USB_OTG)" "y"
   ALLFLAGS += -DUSE_USB_OTG_FS=1 -DUSE_EMBEDDED_PHY=1
 endif
 
+ifeq "$(USE_USB_DEFAULT_CDC)" "y"
+  SRCPATHS += $(OXSRC)/usb_cdc
+  ALLFLAGS += -I$(OXINC)/usb_cdc
+  SRCS += usb_bsp.c
+  SRCS += usbd_cdc_vcp.c
+  SRCS += usbd_desc.c
+  SRCS += usbd_usr.c
+  # USB: lib:
+  SRCS += usb_dcd.c
+  SRCS += usb_core.c
+  SRCS += usbd_core.c
+  SRCS += usbd_req.c
+  SRCS += usbd_ioreq.c
+  SRCS += usbd_cdc_core.c
+  SRCS += usb_dcd_int.c
+endif
+
 vpath %.c   $(SRCPATHS)
 vpath %.cpp $(SRCPATHS)
 vpath %.s   $(OXSRC)/startup $(STMSRC)
