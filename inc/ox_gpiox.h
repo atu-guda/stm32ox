@@ -69,6 +69,7 @@ struct DevGPIOE {
   };
 };
 
+#define DEFINED_PinsOutX
 template<typename DevGPIO>
 class PinsOutX
 {
@@ -84,7 +85,7 @@ class PinsOutX
       if( RCC_enr[ DevGPIO::rcc_reg ] != nullptr ) {
        *( RCC_enr[ DevGPIO::rcc_reg ] ) |= DevGPIO::rcc_bit;
       }
-     devPinConf( gpio, GPIO_Mode_Out_PP, mask );
+     devPinsConf( gpio, pinMode_Out_PP, mask );
    };
    GPIO_TypeDef* dev() { return gpio; }
    uint16_t mv( uint16_t v ) const
@@ -117,6 +118,7 @@ class PinsOutX
 // TODO: F2-4
 //
 
+extern PinsOutX<DevGPIOC> leds; // BUG: TODO: how to define not binding to DevGPIOC?
 
 
 struct PinPlace
@@ -126,28 +128,29 @@ struct PinPlace
 };
 
 
-template<typename DevConf, typename DevMode>
+
 class DevBase {
   public:
-   DevBase() {};
+   template<typename DevConf, typename DevMode>DevBase() {};
    void initHW();
+   uint32_t getBase() const { return base; }
+  protected:
+   uint32_t base;
 };
 
-template<typename DevConf, typename DevMode>
-void DevBase<DevConf,DevMode>::initHW()
-{
-
-  int i = 0;
-  for( auto m : DevMode::pins ) {
-    if( m ) {
-      devPinConf( DevConf::pins[i].port, (GPIOMode_TypeDef)(m), DevConf::pins[i].pin );
-    }
-    ++i;
-  }
-
-}
-
-extern PinsOutX<DevGPIOC> leds;
+// template<typename DevConf, typename DevMode>
+// void DevBase<DevConf,DevMode>::initHW()
+// {
+//
+//   int i = 0;
+//   for( auto m : DevMode::pins ) {
+//     if( m ) {
+//       devPinConf( DevConf::pins[i].port, (GPIOMode_TypeDef)(m), DevConf::pins[i].pin );
+//     }
+//     ++i;
+//   }
+//
+// }
 
 #endif
 

@@ -10,6 +10,43 @@
 
 #include <ox_base.h>
 
+#if defined(STM32F1)
+
+GPIO_InitTypeDef GPIO_Modes[pinMode_MAX] = {
+  { 0, GPIO_DFL_Speed, GPIO_Mode_IN_FLOATING  },// None - fake INF
+  { 0, GPIO_DFL_Speed, GPIO_Mode_AIN },         // AN
+  { 0, GPIO_DFL_Speed, GPIO_Mode_IN_FLOATING }, // INF
+  { 0, GPIO_DFL_Speed, GPIO_Mode_IPU },         // IPU
+  { 0, GPIO_DFL_Speed, GPIO_Mode_IPD },         // IPD
+  { 0, GPIO_DFL_Speed, GPIO_Mode_Out_PP },      // Out_PP
+  { 0, GPIO_DFL_Speed, GPIO_Mode_Out_OD },      // Out_OD
+  { 0, GPIO_DFL_Speed, GPIO_Mode_AF_PP },       // AF_PP
+  { 0, GPIO_DFL_Speed, GPIO_Mode_AF_OD }        // AF_OD
+};
+#else // 2.3.4 is similar?
+
+GPIO_InitTypeDef GPIO_Modes[pinMode_MAX] = {
+  { 0, GPIO_Mode_IN,  GPIO_DFL_Speed, GPIO_OType_PP, GPIO_PuPd_NOPULL  }, // None - fake INF
+  { 0, GPIO_Mode_AN,  GPIO_DFL_Speed, GPIO_OType_PP, GPIO_PuPd_NOPULL  }, // AN
+  { 0, GPIO_Mode_IN,  GPIO_DFL_Speed, GPIO_OType_PP, GPIO_PuPd_NOPULL  }, // INF
+  { 0, GPIO_Mode_IN,  GPIO_DFL_Speed, GPIO_OType_PP, GPIO_PuPd_UP      }, // IPU
+  { 0, GPIO_Mode_IN,  GPIO_DFL_Speed, GPIO_OType_PP, GPIO_PuPd_DOWN    }, // IPD
+  { 0, GPIO_Mode_OUT, GPIO_DFL_Speed, GPIO_OType_PP, GPIO_PuPd_NOPULL  }, // Out_PP
+  { 0, GPIO_Mode_OUT, GPIO_DFL_Speed, GPIO_OType_OD, GPIO_PuPd_NOPULL  }, // Out_OD
+  { 0, GPIO_Mode_AF,  GPIO_DFL_Speed, GPIO_OType_PP, GPIO_PuPd_NOPULL  }, // AF_PP
+  { 0, GPIO_Mode_AF,  GPIO_DFL_Speed, GPIO_OType_OD, GPIO_PuPd_NOPULL  }  // AF_OD
+};
+
+#endif
+
+void devPinsConf( GPIO_TypeDef* GPIOx, PinModeNum mode_num, uint16_t pins )
+{
+  GPIO_InitTypeDef gp = GPIO_Modes[mode_num];
+  gp.GPIO_Pin = pins;
+  GPIO_Init( GPIOx, &gp );
+}
+
+
 #ifdef STM32F1
 
 // TODO: hide to something
@@ -20,26 +57,11 @@ reg32 *const RCC_enr[RCC_Bus::RCC_NBUS] {
   0 // for F4...
 };
 
-// TODO: separate F1/F*
-void devPinConf( GPIO_TypeDef* GPIOx, GPIOMode_TypeDef mode, uint16_t pins )
-{
-  GPIO_InitTypeDef gp;
-  gp.GPIO_Pin = pins;
-  gp.GPIO_Speed = GPIO_Speed_50MHz; // TODO: config
-  gp.GPIO_Mode = mode;
-  GPIO_Init( GPIOx, &gp );
-}
 
 
 #else
  #error "Only STM32F1xx supported now ;-( "
 
-void devPinConf( GPIO_TypeDef* GPIOx, GPIOMode_TypeDef mode, uint16_t pins )
-{
-  GPIO_InitTypeDef gp;
-  gp.GPIO_Pin = pins;
-  GPIO_Init( GPIOx, &gp );
-}
 
 #endif // STM32F1
 

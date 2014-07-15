@@ -77,6 +77,7 @@ class PinsOut
    const uint8_t start, n;
    const uint16_t mask;
 };
+extern PinsOut leds;
 
 
 #endif // STM32F1

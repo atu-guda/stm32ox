@@ -11,6 +11,10 @@ STMINC=$(STMDIR)/inc
 STMSRC=$(STMDIR)/src
 STMLD=$(STMDIR)/ld
 
+S32P_DIR=/usr/share/stm32plus
+S32P_INC=$(S32P_DIR)/include
+S32P_LIB=$(S32P_DIR)/lib
+
 # OXDIR := ox // from Makefile
 OXINC = $(OXDIR)/inc
 OXSRC = $(OXDIR)/src
@@ -88,6 +92,12 @@ ifeq "$(USE_OX)" "y"
   ALLFLAGS += -I$(OXINC)
 endif
 
+ifeq "$(USE_S32P)" "y"
+  $(info USE_S32P is set)
+  ALLFLAGS += -I$(S32P_INC) -I$(S32P_INC)/stl  -D$(S32P_DEF)
+  LIBFLAGS += -L$(S32P_LIB) -lstm32plus-fast-$(S32P_ARCH)-$(S32P_HSE)
+endif
+
 ifeq "$(USE_FREERTOS)" "y"
   SRCPATHS += $(RTSRC) $(RTDIR)
   ALLFLAGS += -I$(RTINC) -DUSE_FREERTOS
@@ -134,7 +144,7 @@ OBJS  = $(OBJS0:.s=.o)
 OBJS1 = $(addprefix $(OBJDIR)/,$(OBJS))
 
 CFLAGS   = $(ALLFLAGS)  -std=c11
-CXXFLAGS = $(ALLFLAGS)  -std=c++11 -fno-rtti -fno-exceptions
+CXXFLAGS = $(ALLFLAGS)  -std=c++11 -fno-rtti -fno-exceptions -fno-threadsafe-statics
 
 ###################################################
 
@@ -163,7 +173,7 @@ $(OBJDIR)/%.o: %.s
 
 
 $(PROJ_NAME).elf: $(OBJS1)
-	$(LINK) $(CFLAGS) -Wl,-Map=$(PROJ_NAME).map $^ -o $@
+	$(LINK) $(CFLAGS) $(LIBFLAGS) -Wl,-Map=$(PROJ_NAME).map $^ -o $@
 	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 	$(OBJDUMP) -h -f -d -S $(PROJ_NAME).elf > $(PROJ_NAME).lst
@@ -174,6 +184,7 @@ clean:
 	rm -f $(PROJ_NAME).elf
 	rm -f $(PROJ_NAME).hex
 	rm -f $(PROJ_NAME).lst
+	rm -f $(PROJ_NAME).map
 	rm -f $(PROJ_NAME).bin
 
 #

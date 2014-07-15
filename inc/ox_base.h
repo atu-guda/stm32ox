@@ -36,7 +36,6 @@ void taskYieldFun();
 // for 72MHz
 #define T_MKS_MUL    8
 #define T_MS_MUL  7979
-// #define T_MS_MUL  10245
 #define T_S_MUL   10261378
 
 // local board functions
@@ -65,7 +64,52 @@ enum RCC_Bus { // indexes in RCC_enr
 };
 extern reg32 *const RCC_enr[RCC_Bus::RCC_NBUS];
 
-void devPinConf( GPIO_TypeDef* GPIOx, GPIOMode_TypeDef mode, uint16_t pins );
+// void devPinConf( GPIO_TypeDef* GPIOx, GPIOMode_TypeDef mode, uint16_t pins );
+
+enum PinModeNum {
+  pinMode_NONE = 0,
+  pinMode_AN,
+  pinMode_INF,
+  pinMode_IPU,
+  pinMode_IPD,
+  pinMode_Out_PP,
+  pinMode_Out_OD,
+  pinMode_AF_PP,
+  pinMode_AF_OD,
+  pinMode_MAX, // size
+  // aliases (default, may be other)
+  pinMode_TIM_Capt   = pinMode_INF,
+  pinMode_TIM_Out    = pinMode_Out_PP,
+  pinMode_USART_TX   = pinMode_AF_PP,
+  pinMode_USART_RX   = pinMode_IPU,
+  pinMode_SPI_SCK    = pinMode_AF_PP,
+  pinMode_SPI_MOSI   = pinMode_AF_PP,
+  pinMode_SPI_MISO   = pinMode_INF,
+  pinMode_SPI_NSS    = pinMode_INF,
+  pinMode_I2C_SCK    = pinMode_AF_OD,
+  pinMode_I2C_SDA    = pinMode_AF_OD,
+  pinMode_I2C_SMBA   = pinMode_AF_OD
+};
+
+#if defined(STM32F1)
+const GPIOSpeed_TypeDef GPIO_DFL_Speed = GPIO_Speed_50MHz;
+
+
+#elif defined(STM32F2)
+const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_Speed_100MHz
+
+#elif defined(STM32F3)
+const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_Speed_Level_3
+
+#elif defined(STM32F4)
+const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_High_Speed
+#else
+  #error "Unknow MCU type"
+#endif
+extern GPIO_InitTypeDef GPIO_Modes[pinMode_MAX];
+
+
+void devPinsConf( GPIO_TypeDef* GPIOx, PinModeNum mode_num, uint16_t pins );
 /** write some (mask based) bits to port, keep all other */
 void GPIO_WriteBits( GPIO_TypeDef* GPIOx, uint16_t PortVal, uint16_t mask );
 

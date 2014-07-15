@@ -16,7 +16,7 @@ void PinsOut::initHW()
   if( RCC_enr[ gpio_info->rcc_reg ] != nullptr ) {
    *( RCC_enr[ gpio_info->rcc_reg ] ) |= gpio_info->rcc_bits;
   }
-  devPinConf( gpio, GPIO_Mode_Out_PP, mask );
+  devPinsConf( gpio, pinMode_Out_PP, mask );
 };
 
 // vim: path=.,/usr/share/stm32lib/inc

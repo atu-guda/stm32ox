@@ -6,6 +6,11 @@
 
 // default LEDS is C0:C3
 #define BOARD_N_LEDS 4
-#define BOARD_DEFINE_LEDS PinsOutX<DevGPIOC> leds( 0, BOARD_N_LEDS );
+
+#ifdef DEFINED_PinsOutX
+  #define BOARD_DEFINE_LEDS PinsOutX<DevGPIOC> leds( 0, BOARD_N_LEDS );
+#else
+  #define BOARD_DEFINE_LEDS PinsOut leds( &gpio_c, 0, BOARD_N_LEDS );
+#endif
 
 #endif
