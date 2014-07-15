@@ -56,11 +56,12 @@ inline void delay_bad_mcs( uint32_t mcs )
 
 // RCC registers for enable devices
 enum RCC_Bus { // indexes in RCC_enr
-  RCC_Bus0 = 0, RCC_AHB  = 0,
-  RCC_Bus1 = 1, RCC_APB1 = 1,
-  RCC_Bus2 = 2, RCC_APB2 = 2,
-  RCC_Bus3 = 3,
-  RCC_NBUS = 4
+  RCC_Bus0 = 0, RCC_APB1 = 0,
+  RCC_Bus1 = 1, RCC_APB2 = 1,
+  RCC_Bus2 = 2, RCC_AHB = 2, RCC_AHB1  = 2,
+  RCC_Bus3 = 3, RCC_AHB2  = 3,
+  RCC_Bus4 = 4, RCC_AHB3  = 4,
+  RCC_NBUS = 5
 };
 extern reg32 *const RCC_enr[RCC_Bus::RCC_NBUS];
 
@@ -96,13 +97,13 @@ const GPIOSpeed_TypeDef GPIO_DFL_Speed = GPIO_Speed_50MHz;
 
 
 #elif defined(STM32F2)
-const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_Speed_100MHz
+const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_Speed_100MHz;
 
 #elif defined(STM32F3)
-const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_Speed_Level_3
+const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_Speed_Level_3;
 
 #elif defined(STM32F4)
-const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_High_Speed
+const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_High_Speed;
 #else
   #error "Unknow MCU type"
 #endif

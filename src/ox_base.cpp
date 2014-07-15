@@ -47,23 +47,42 @@ void devPinsConf( GPIO_TypeDef* GPIOx, PinModeNum mode_num, uint16_t pins )
 }
 
 
-#ifdef STM32F1
-
-// TODO: hide to something
+#if defined(STM32F1)
+reg32 *const RCC_enr[RCC_Bus::RCC_NBUS] {
+  &(RCC->APB1ENR),
+  &(RCC->APB2ENR),
+  &(RCC->AHBENR),
+  nullptr,
+  nullptr
+};
+#elif defined(STM32F2)
+reg32 *const RCC_enr[RCC_Bus::RCC_NBUS] {
+  &(RCC->AHB1ENR),
+  &(RCC->APB1ENR),
+  &(RCC->APB2ENR),
+  &(RCC->AHB2ENR),
+  &(RCC->AHB3ENR)
+};
+#elif defined(STM32F3)
 reg32 *const RCC_enr[RCC_Bus::RCC_NBUS] {
   &(RCC->AHBENR),
   &(RCC->APB1ENR),
   &(RCC->APB2ENR),
-  0 // for F4...
+  nullptr,
+  nullptr
+};
+#elif defined(STM32F4)
+reg32 *const RCC_enr[RCC_Bus::RCC_NBUS] {
+  &(RCC->AHB1ENR),
+  &(RCC->APB1ENR),
+  &(RCC->APB2ENR),
+  &(RCC->AHB2ENR),
+  &(RCC->AHB3ENR)
 };
 
-
-
 #else
- #error "Only STM32F1xx supported now ;-( "
-
-
-#endif // STM32F1
+ #error "Unsupported MCU detected ;-( "
+#endif // STM32Fxxx
 
 
 void taskYieldFun()

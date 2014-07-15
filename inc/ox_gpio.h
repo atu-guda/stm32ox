@@ -1,9 +1,6 @@
 #ifndef _OX_GPIO_H
 #define _OX_GPIO_H
 
-// #ifdef STM32F1
-// #endif
-
 
 #if defined STM32F1
  #include <stm32f10x.h>
@@ -22,8 +19,6 @@
 #endif // STM32Fxxx
 
 #include <ox_base.h>
-
-#ifdef STM32F1
 
 
 struct GPIO_Info {
@@ -78,14 +73,6 @@ class PinsOut
    const uint16_t mask;
 };
 extern PinsOut leds;
-
-
-#endif // STM32F1
-// TODO: F2-4
-//
-
-
-
 
 
 #endif
