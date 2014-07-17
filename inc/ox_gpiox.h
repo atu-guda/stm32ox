@@ -121,23 +121,6 @@ class PinsOutX
 extern PinsOutX<DevGPIOC> leds; // BUG: TODO: how to define not binding to DevGPIOC?
 
 
-struct PinPlace
-{
-  GPIO_TypeDef* port;
-  uint16_t pin;
-};
-
-
-
-class DevBase {
-  public:
-   template<typename DevConf, typename DevMode>DevBase() {};
-   void initHW();
-   uint32_t getBase() const { return base; }
-  protected:
-   uint32_t base;
-};
-
 // template<typename DevConf, typename DevMode>
 // void DevBase<DevConf,DevMode>::initHW()
 // {

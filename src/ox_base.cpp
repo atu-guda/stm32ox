@@ -88,7 +88,9 @@ reg32 *const RCC_enr[RCC_Bus::RCC_NBUS] {
 void taskYieldFun()
 {
   #ifdef USE_FREERTOS
-  taskYIELD();
+    taskYIELD();
+  #else
+    delay_mcs( 100 );
   #endif
 }
 
@@ -213,4 +215,33 @@ char* i2dec( int n, char *s )
   return s;
 }
 
+// ------------------------- Devices ---------------------
+//
+
+
+void DevBase::initHW()
+{
+  // RCC enable bits part
+  for( int i=0; i<RCC_NBUS; ++i ) {
+    if( ! RCC_enr[i] ) {
+      continue;
+    }
+    if( cfg->rcc_bits[i] ) {
+      *RCC_enr[i] |=  cfg->rcc_bits[i];
+    }
+  }
+
+  // TODO: remap, irq
+
+  // pins config
+  for( int i=0; i<max_dev_pins; ++i ) {
+    if( mode->pins[i] == pinMode_NONE
+        || cfg->pins[i].port == nullptr
+        || cfg->pins[i].pin == 0
+    ) {
+      continue;
+    }
+    devPinsConf( cfg->pins[i].port, mode->pins[i], cfg->pins[i].pin );
+  }
+}
 
