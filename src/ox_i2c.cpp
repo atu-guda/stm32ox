@@ -68,7 +68,7 @@ int  DevI2C::send( uint8_t addr, uint8_t ds )
 {
   // START, addr, sl:ack, cmd, sl:acl, data, sl:ack, STOP
   __label__ end;
-  err = 0;
+  err = 0; n_trans = 0;
 
   I2C_WAITNOBUSY( i2c );
 
@@ -80,17 +80,18 @@ int  DevI2C::send( uint8_t addr, uint8_t ds )
 
   i2c->DR = ds;
   I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTED, -4 );
+  n_trans = 1;
 
   end: ;
   genSTOP();
 
-  return ( err == 0 ) ? 1 : err;
+  return ( err == 0 ) ? n_trans : err;
 }
 
 int  DevI2C::send( uint8_t addr, const uint8_t *ds, int ns )
 {
   __label__ end;
-  err = 0;
+  err = 0; n_trans = 0;
 
   I2C_WAITNOBUSY( i2c );
 
@@ -115,7 +116,7 @@ int  DevI2C::send( uint8_t addr, const uint8_t *ds, int ns )
 int  DevI2C::recv( uint8_t addr )
 {
   __label__ end;
-  err = 0;
+  err = 0; n_trans = 0;
   uint8_t v;
 
   I2C_WAITNOBUSY( i2c );
@@ -130,6 +131,7 @@ int  DevI2C::recv( uint8_t addr )
 
   I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_RECEIVED, -3 );
   v = (uint8_t)( i2c->DR );
+  n_trans = 1;
 
   end: ;
   asknEnable();
@@ -142,7 +144,7 @@ int  DevI2C::recv( uint8_t addr )
 int  DevI2C::recv( uint8_t addr, uint8_t *dd, int nd )
 {
   __label__ end;
-  err = 0;
+  err = 0; n_trans = 0;
 
   I2C_WAITNOBUSY( i2c );
 
@@ -172,8 +174,7 @@ int  DevI2C::recv( uint8_t addr, uint8_t *dd, int nd )
 int  DevI2C::send_recv( uint8_t addr, const uint8_t *ds, int ns, uint8_t *dd, int nd )
 {
   __label__ end;
-  err = 0;
-  // volatile uint8_t* pdr = (volatile uint8_t*)( &i2c->DR );
+  err = 0; n_trans = 0;
 
   I2C_WAITNOBUSY( i2c );
 
@@ -198,9 +199,7 @@ int  DevI2C::send_recv( uint8_t addr, const uint8_t *ds, int ns, uint8_t *dd, in
 
   for( n_trans=0; n_trans<nd; ++n_trans ) {
    I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_RECEIVED, -3 );
-   // *dd++ = (uint8_t)( i2c->DR );
-   // *dd++ = *pdr;
-   *dd++ = I2C_ReceiveData( i2c );
+   *dd++ = (uint8_t)( i2c->DR );
    if( n_trans >=nd-2 ) {
      asknDisable(); // <-------- last?
    }
