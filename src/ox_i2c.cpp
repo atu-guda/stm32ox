@@ -113,6 +113,63 @@ int  DevI2C::send( uint8_t addr, const uint8_t *ds, int ns )
   return ( err == 0 ) ? n_trans : err;
 }
 
+int  DevI2C::send_reg1( uint8_t addr, uint8_t reg,  const uint8_t *ds, int ns )
+{
+  __label__ end;
+  err = 0; n_trans = 0;
+
+  I2C_WAITNOBUSY( i2c );
+
+  genSTART();
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_MODE_SELECT, -1 ); // Test on EV5 and clear it
+
+  I2C_Send7bitAddress( i2c, addr<<1, I2C_Direction_Transmitter );
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED, -2 );
+
+  i2c->DR = reg;
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
+
+  for( n_trans=0; n_trans<ns; ++n_trans ) {
+    i2c->DR = *ds++ ;
+    I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
+  }
+
+  end: ;
+  genSTOP();
+
+  return ( err == 0 ) ? n_trans : err;
+}
+
+int  DevI2C::send_reg2( uint8_t addr, uint16_t reg, const uint8_t *ds, int ns )
+{
+  __label__ end;
+  err = 0; n_trans = 0;
+
+  I2C_WAITNOBUSY( i2c );
+
+  genSTART();
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_MODE_SELECT, -1 ); // Test on EV5 and clear it
+
+  I2C_Send7bitAddress( i2c, addr<<1, I2C_Direction_Transmitter );
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED, -2 );
+
+  i2c->DR = (uint8_t)(reg>>8);
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
+  i2c->DR = (uint8_t)(reg);
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
+
+  for( n_trans=0; n_trans<ns; ++n_trans ) {
+    i2c->DR = *ds++ ;
+    I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
+  }
+
+  end: ;
+  genSTOP();
+
+  return ( err == 0 ) ? n_trans : err;
+}
+
+
 int  DevI2C::recv( uint8_t addr )
 {
   __label__ end;
@@ -169,6 +226,84 @@ int  DevI2C::recv( uint8_t addr, uint8_t *dd, int nd )
 
   return ( err == 0 ) ? n_trans : err;
 
+}
+
+int  DevI2C::recv_reg1( uint8_t addr, int8_t reg,  uint8_t *dd, int nd )
+{
+  __label__ end;
+  err = 0; n_trans = 0;
+
+  I2C_WAITNOBUSY( i2c );
+
+  genSTART();
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_MODE_SELECT, -1 ); // Test on EV5 and clear it
+
+  I2C_Send7bitAddress( i2c, addr<<1, I2C_Direction_Transmitter );
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED, -2 );
+
+  i2c->DR = reg;
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
+
+  genSTART(); // restart
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_MODE_SELECT, -7 ); // Test on EV5 and clear it
+
+
+  I2C_Send7bitAddress( i2c, addr<<1, I2C_Direction_Receiver );
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED, -3 );
+
+  for( n_trans=0; n_trans<nd; ++n_trans ) {
+   I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_RECEIVED, -3 );
+   *dd++ = (uint8_t)( i2c->DR );
+   if( n_trans >=nd-2 ) {
+     asknDisable(); // <-------- last?
+   }
+  }
+
+  end: ;
+  asknEnable();
+  genSTOP();
+
+  return ( err == 0 ) ? n_trans : err;
+}
+
+int  DevI2C::recv_reg2( uint8_t addr, int16_t reg, uint8_t *dd, int nd )
+{
+  __label__ end;
+  err = 0; n_trans = 0;
+
+  I2C_WAITNOBUSY( i2c );
+
+  genSTART();
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_MODE_SELECT, -1 ); // Test on EV5 and clear it
+
+  I2C_Send7bitAddress( i2c, addr<<1, I2C_Direction_Transmitter );
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED, -2 );
+
+  i2c->DR = (uint8_t)(reg>>8);
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
+  i2c->DR = (uint8_t)(reg);
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
+
+  genSTART(); // restart
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_MODE_SELECT, -7 ); // Test on EV5 and clear it
+
+
+  I2C_Send7bitAddress( i2c, addr<<1, I2C_Direction_Receiver );
+  I2C_WAITFOR( i2c, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED, -3 );
+
+  for( n_trans=0; n_trans<nd; ++n_trans ) {
+   I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_RECEIVED, -3 );
+   *dd++ = (uint8_t)( i2c->DR );
+   if( n_trans >=nd-2 ) {
+     asknDisable(); // <-------- last?
+   }
+  }
+
+  end: ;
+  asknEnable();
+  genSTOP();
+
+  return ( err == 0 ) ? n_trans : err;
 }
 
 int  DevI2C::send_recv( uint8_t addr, const uint8_t *ds, int ns, uint8_t *dd, int nd )
