@@ -54,14 +54,19 @@ class DevI2C : public DevBase {
    void asknDisable(){ i2c->CR1 &= (uint16_t)(~CR1_ACK); };
    ErrorStatus checkEvent( uint32_t ev ) { return I2C_CheckEvent( i2c, ev ); }
    uint32_t lastEvent() { return I2C_GetLastEvent( i2c ); }
+   int prep( uint8_t addr, bool is_transmit, bool noWait = false ); // return 0=Err 1=Ok
+   int ping( uint8_t addr );
+   int send_pure( const uint8_t *ds, int ns ); // return 0=Err 1=Ok
    // returns: >0 = N of send/recv bytes, <0 - error
    int  send( uint8_t addr, uint8_t ds );
    int  send( uint8_t addr, const uint8_t *ds, int ns );
+   int  send_reg_n( uint8_t addr, uint32_t reg, uint8_t reglen,  const uint8_t *ds, int ns );
    int  send_reg1( uint8_t addr, uint8_t reg,  const uint8_t *ds, int ns );
    int  send_reg2( uint8_t addr, uint16_t reg, const uint8_t *ds, int ns );
+   int  recv_pure( uint8_t *dd, int nd );
    int  recv( uint8_t addr );
    int  recv( uint8_t addr, uint8_t *dd, int nd );
-   int  send_reg_n( uint8_t addr, uint32_t reg, uint8_t reglen,  const uint8_t *ds, int ns );
+   int  recv_reg_n( uint8_t addr, int32_t reg, uint8_t reglen,  uint8_t *dd, int nd );
    int  recv_reg1( uint8_t addr, int8_t reg,  uint8_t *dd, int nd );
    int  recv_reg2( uint8_t addr, int16_t reg, uint8_t *dd, int nd );
    int  send_recv( uint8_t addr, const uint8_t *ds, int ns, uint8_t *dd, int nd );
@@ -80,6 +85,11 @@ class DevI2C : public DevBase {
      getEv();
      return ( ( lastEv & I2C_FLAG_Mask & ev ) == ev );
    }
+   FlagStatus flagStatus( uint32_t flg ) {
+     return I2C_GetFlagStatus( i2c, flg );
+   }
+   int waitForEv( uint32_t ev, int errcode ); // return 0 - failed to wait, != 0 - Ok
+   int waitNoBusy(); // same
 
   protected:
    uint8_t own_addr;

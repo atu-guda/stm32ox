@@ -13,7 +13,7 @@
 extern int user_vars[N_USER_VARS];
 
 // general buffers
-#define GBUF_SZ 128
+#define GBUF_SZ 256
 extern char gbuf_a[GBUF_SZ];
 extern char gbuf_b[GBUF_SZ];
 extern int log_buf_idx; // gbuf_b in log place too
