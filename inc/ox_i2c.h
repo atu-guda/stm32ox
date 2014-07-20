@@ -61,6 +61,7 @@ class DevI2C : public DevBase {
    int  send_reg2( uint8_t addr, uint16_t reg, const uint8_t *ds, int ns );
    int  recv( uint8_t addr );
    int  recv( uint8_t addr, uint8_t *dd, int nd );
+   int  send_reg_n( uint8_t addr, uint32_t reg, uint8_t reglen,  const uint8_t *ds, int ns );
    int  recv_reg1( uint8_t addr, int8_t reg,  uint8_t *dd, int nd );
    int  recv_reg2( uint8_t addr, int16_t reg, uint8_t *dd, int nd );
    int  send_recv( uint8_t addr, const uint8_t *ds, int ns, uint8_t *dd, int nd );

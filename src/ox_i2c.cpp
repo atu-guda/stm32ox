@@ -64,26 +64,7 @@ void DevI2C::initHW()
 
 int  DevI2C::send( uint8_t addr, uint8_t ds )
 {
-  // START, addr, sl:ack, cmd, sl:acl, data, sl:ack, STOP
-  __label__ end;
-  err = 0; n_trans = 0;
-
-  I2C_WAITNOBUSY( i2c );
-
-  genSTART();
-  I2C_WAITFOR( I2C_EVENT_MASTER_MODE_SELECT, -1 ); // Test on EV5 and clear it
-
-  I2C_Send7bitAddress( i2c, addr<<1, I2C_Direction_Transmitter );
-  I2C_WAITFOR( I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED, -2 );
-
-  i2c->DR = ds;
-  I2C_WAITFOR( I2C_EVENT_MASTER_BYTE_TRANSMITTED, -4 );
-  n_trans = 1;
-
-  end: ;
-  genSTOP();
-
-  return ( err == 0 ) ? n_trans : err;
+  return send( addr, &ds, 1 );
 }
 
 int  DevI2C::send( uint8_t addr, const uint8_t *ds, int ns )
@@ -111,10 +92,16 @@ int  DevI2C::send( uint8_t addr, const uint8_t *ds, int ns )
   return ( err == 0 ) ? n_trans : err;
 }
 
-int  DevI2C::send_reg1( uint8_t addr, uint8_t reg,  const uint8_t *ds, int ns )
+int  DevI2C::send_reg_n( uint8_t addr, uint32_t reg, uint8_t reglen,  const uint8_t *ds, int ns )
 {
   __label__ end;
   err = 0; n_trans = 0;
+  uint8_t rp;
+  uint8_t n_shift;
+
+  if( reglen > 4 ) {
+    reglen = 4;
+  }
 
   I2C_WAITNOBUSY( i2c );
 
@@ -124,8 +111,14 @@ int  DevI2C::send_reg1( uint8_t addr, uint8_t reg,  const uint8_t *ds, int ns )
   I2C_Send7bitAddress( i2c, addr<<1, I2C_Direction_Transmitter );
   I2C_WAITFOR( I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED, -2 );
 
-  i2c->DR = reg;
-  I2C_WAITFOR( I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
+  n_shift = reglen * 8;
+  do {
+    n_shift -= 8;
+    rp = (uint8_t)( reg >> n_shift );
+    i2c->DR = rp;
+    I2C_WAITFOR( I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
+  } while( n_shift );
+
 
   for( n_trans=0; n_trans<ns; ++n_trans ) {
     i2c->DR = *ds++ ;
@@ -138,61 +131,24 @@ int  DevI2C::send_reg1( uint8_t addr, uint8_t reg,  const uint8_t *ds, int ns )
   return ( err == 0 ) ? n_trans : err;
 }
 
+
+int  DevI2C::send_reg1( uint8_t addr, uint8_t reg,  const uint8_t *ds, int ns )
+{
+  return send_reg_n( addr, reg, 1, ds, ns );
+}
+
 int  DevI2C::send_reg2( uint8_t addr, uint16_t reg, const uint8_t *ds, int ns )
 {
-  __label__ end;
-  err = 0; n_trans = 0;
-
-  I2C_WAITNOBUSY( i2c );
-
-  genSTART();
-  I2C_WAITFOR( I2C_EVENT_MASTER_MODE_SELECT, -1 ); // Test on EV5 and clear it
-
-  I2C_Send7bitAddress( i2c, addr<<1, I2C_Direction_Transmitter );
-  I2C_WAITFOR( I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED, -2 );
-
-  i2c->DR = (uint8_t)(reg>>8);
-  I2C_WAITFOR( I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
-  i2c->DR = (uint8_t)(reg);
-  I2C_WAITFOR( I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
-
-  for( n_trans=0; n_trans<ns; ++n_trans ) {
-    i2c->DR = *ds++ ;
-    I2C_WAITFOR( I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
-  }
-
-  end: ;
-  genSTOP();
-
-  return ( err == 0 ) ? n_trans : err;
+  return send_reg_n( addr, reg, 2, ds, ns );
 }
 
 
 int  DevI2C::recv( uint8_t addr )
 {
-  __label__ end;
-  err = 0; n_trans = 0;
   uint8_t v;
+  int r = recv( addr, &v, 1 );
 
-  I2C_WAITNOBUSY( i2c );
-
-  genSTART();
-  I2C_WAITFOR( I2C_EVENT_MASTER_MODE_SELECT, -1 ); // Test on EV5 and clear it
-
-  I2C_Send7bitAddress( i2c, addr<<1, I2C_Direction_Receiver );
-  I2C_WAITFOR( I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED, -3 );
-
-  asknDisable();
-
-  I2C_WAITFOR( I2C_EVENT_MASTER_BYTE_RECEIVED, -3 );
-  v = (uint8_t)( i2c->DR );
-  n_trans = 1;
-
-  end: ;
-  asknEnable();
-  genSTOP();
-
-  return ( err == 0 ) ? v : err;
+  return ( r > 0 ) ? v : err;
 
 }
 
@@ -209,6 +165,9 @@ int  DevI2C::recv( uint8_t addr, uint8_t *dd, int nd )
   I2C_Send7bitAddress( i2c, addr<<1, I2C_Direction_Receiver );
   I2C_WAITFOR( I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED, -3 );
 
+  if( nd < 2 ) {
+    asknDisable(); // single
+  }
 
   for( n_trans=0; n_trans<nd; ++n_trans ) {
    I2C_WAITFOR( I2C_EVENT_MASTER_BYTE_RECEIVED, -3 );
@@ -319,7 +278,6 @@ int  DevI2C::send_recv( uint8_t addr, const uint8_t *ds, int ns, uint8_t *dd, in
 
   for( n_trans=0; n_trans<ns; ++n_trans ) {
     i2c->DR = *ds++;
-    // I2C_WAITFOR( i2c, I2C_EVENT_MASTER_BYTE_TRANSMITTED, -4 );
     I2C_WAITFOR( I2C_EVENT_MASTER_BYTE_TRANSMITTING, -4 );
   }
 
