@@ -88,17 +88,16 @@ enum PinModeNum {
 };
 
 #if defined(STM32F1)
-const GPIOSpeed_TypeDef GPIO_DFL_Speed = GPIO_Speed_50MHz;
-
+#define GPIO_DFL_Speed GPIO_Speed_50MHz
 
 #elif defined(STM32F2)
-const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_Speed_100MHz;
+#define GPIO_DFL_Speed GPIO_Speed_100MHz
 
 #elif defined(STM32F3)
-const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_Speed_Level_3;
+#define  GPIO_DFL_Speed GPIO_Speed_Level_3
 
 #elif defined(STM32F4)
-const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_High_Speed;
+#define  GPIO_DFL_Speed  GPIO_High_Speed
 #else
   #error "Unknow MCU type"
 #endif
