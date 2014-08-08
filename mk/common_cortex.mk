@@ -44,7 +44,11 @@ RTINC=$(RTSRC)/include
 
 ###################################################
 
-ALLFLAGS := -g -O2 -Wall
+ALLFLAGS := -g -O2
+ALLFLAGS += -Wall -Wextra -Wshadow -Wimplicit-function-declaration -Wundef
+ALLFLAGS += -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
+ALLFLAGS += -fno-common -ffunction-sections -fdata-sections
+
 ALLFLAGS += -DUSE_STDPERIPH_DRIVER=1
 ALLFLAGS += -ffreestanding
 ALLFLAGS += -mlittle-endian
@@ -59,27 +63,31 @@ $(info MCBASE is $(MCBASE) )
 ALLFLAGS  += -D$(MCTYPE) -D$(MCBASE)
 
 ifeq "$(MCBASE)" "STM32F0"
-  ALLFLAGS += -mthumb -mcpu=cortex-m0
+  ARCHFLAGS = -mthumb -mcpu=cortex-m0 -mfix-cortex-m3-ldrd
 endif
 ifeq "$(MCBASE)" "STM32F1"
-  ALLFLAGS += -mthumb -mcpu=cortex-m3
+  ARCHFLAGS = -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd
 endif
 ifeq "$(MCBASE)" "STM32F2"
-  ALLFLAGS += -mthumb -mcpu=cortex-m3
+  ARCHFLAGS = -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd
 endif
 ifeq "$(MCBASE)" "STM32F3"
-  ALLFLAGS += -mthumb -mcpu=cortex-m4f
-  ALLFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+  ARCHFLAGS = -mthumb -mcpu=cortex-m4f -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 endif
 ifeq "$(MCBASE)" "STM32F4"
-  ALLFLAGS += -mthumb -mcpu=cortex-m4f
-  ALLFLAGS += -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+  ARCHFLAGS += -mthumb -mcpu=cortex-m4f -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 endif
 
 
-ALLFLAGS += -T$(LDSCRIPT)
+ALLFLAGS += $(ARCHFLAGS)
 ALLFLAGS += $(CFLAGS_ADD)
 
+LDFLAGS = --static # -nostartfiles
+LDFLAGS += -T$(LDSCRIPT)
+LDFLAGS += -Wl,-Map=$(PROJ_NAME).map
+LDFLAGS += -Wl,--gc-sections
+LDFLAGS += $(ARCHFLAGS)
+LDFLAGS += -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group
 
 ###################################################
 
@@ -173,10 +181,14 @@ $(OBJDIR)/%.o: %.s
 
 
 $(PROJ_NAME).elf: $(OBJS1)
-	$(LINK) $(CFLAGS) $(LIBFLAGS) -Wl,-Map=$(PROJ_NAME).map $^ -o $@
+	$(LINK) $^ $(LDFLAGS) -o $@
 	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
 	$(OBJDUMP) -h -f -d -S $(PROJ_NAME).elf > $(PROJ_NAME).lst
+
+flash: $(PROJ_NAME).bin
+	st-flash --reset write  $(PROJ_NAME).bin 0x8000000
+
 
 
 clean:
