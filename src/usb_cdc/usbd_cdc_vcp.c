@@ -11,7 +11,6 @@
 #include "usb_conf.h"
 
 #include <ox_base.h>
-// #include <ox_debug1.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -199,10 +198,8 @@ static uint16_t VCP_DataRx( uint8_t* Buf, uint32_t Len )
 {
   portBASE_TYPE wake = pdFALSE;
   for( uint32_t i=0; i<Len; ++i ) {
-    xQueueSendFromISR( qh_USB_recv, Buf, &wake  );
+    xQueueSendFromISR( qh_USB_recv, Buf+i, &wake  );
   }
-  // user_vars[2]  = Len; // debug
-  // user_vars[3] += Len; // debug
 
   // leds_off( BIT6 );
   if( wake != pdFALSE ) {

@@ -71,14 +71,6 @@ void USB_OTG_BSP_EnableInterrupt( USB_OTG_CORE_HANDLE *pdev )
 void USB_OTG_BSP_uDelay( const uint32_t usec )
 {
   delay_bad_mcs( usec );
-  // uint32_t count = 0;
-  // const uint32_t utime = (120 * usec / 7);
-  // do {
-  //   if ( ++count > utime ) {
-  //     return ;
-  //   }
-  // }
-  // while(1);
 }
 
 
@@ -91,7 +83,6 @@ void USB_OTG_BSP_uDelay( const uint32_t usec )
 void USB_OTG_BSP_mDelay (const uint32_t msec)
 {
   delay_ms( msec );
-  // delay_bad_ms( msec );
   // USB_OTG_BSP_uDelay( msec * 1000 );
 }
 

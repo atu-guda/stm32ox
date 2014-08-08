@@ -29,25 +29,43 @@ char* str2addr( const char *str )
 void dump8( const void *addr, int n )
 {
   char b[8]; // for char2hex
-  const char* ad = (const char*)(addr);
+  unsigned const char* ad = (unsigned const char*)(addr);
   if( !ad  ||  ad == BAD_ADDR ) {
     return;
   }
-  const char* ad0 = ad;
+  unsigned const char* ad0 = ad;
   pr( NL );
 
-  int i;
-  for( i=0; i<n; ++i ) {
-    if( ( i & 0x0F ) == 0 ) {
-      pr_a( ad0 ); pr( ": " );
+  int i, row, bs;
+  int nr = (n+15) >> 4; // non-full rows counting too
+  for( row = 0; row < nr; ++row ) {
+    pr_a( ad0 ); pr( ": " );
+    bs = row << 4;
+    for( i=0; i<16 && (i+bs)<n; ++i ) {
+      pr( char2hex( ad[i+bs], b ) ); pr( " " );
+      if( (i&3) == 3 ) {
+        pr( ": " );
+      }
     }
-    pr( char2hex( ad[i], b ) ); pr( " " );
-    if( (i & 0x0F) == 0x0F ) {
-      pr( NL );
-      ad0 += 16;
+
+    pr( "|  " );
+    b[1] = 0;
+    for( i=0; i<16 && (i+bs)<n; ++i ) {
+      b[0] = '.';
+      if( ad[i+bs] >= ' ' ) {
+        b[0] = ad[i+bs];
+      }
+      pr( b );
+      if( (i&3) == 3 ) {
+        pr( " " );
+      }
     }
+    pr( NL );
+    ad0 += 16;
+
   }
-  pr( NL "-------------------------" NL );
+
+  pr( "--------------------------------------" NL );
 }
 
 
@@ -61,6 +79,18 @@ void log_add( const char *s )
   }
 
   while( *s !=0  && log_buf_idx < GBUF_SZ-1 ) {
+    gbuf_b[log_buf_idx++] = *s++;
+  }
+  gbuf_b[log_buf_idx] = '\0'; // not++
+}
+
+void log_add_bin( const char *s, uint16_t len )
+{
+  if( !s ) {
+    return;
+  }
+
+  for( uint16_t i=0;  i<len && log_buf_idx < GBUF_SZ-1; ++i ) {
     gbuf_b[log_buf_idx++] = *s++;
   }
   gbuf_b[log_buf_idx] = '\0'; // not++
