@@ -5,10 +5,11 @@
   */
 
 #include "stm32f10x_conf.h"
-#include "localfun.h"
 
 #include "usbd_usr.h"
 #include "usbd_ioreq.h"
+
+#include <ox_base.h>
 
 
 USBD_Usr_cb_TypeDef USR_cb =

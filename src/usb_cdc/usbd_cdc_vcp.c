@@ -6,10 +6,11 @@
 
 #include "stm32f10x_conf.h"
 
-#include "localfun.h"
 
 #include "usbd_cdc_vcp.h"
 #include "usb_conf.h"
+
+#include <ox_base.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -165,7 +166,7 @@ static uint16_t VCP_Ctrl( uint32_t Cmd, uint8_t* Buf, uint32_t Len )
 uint16_t VCP_DataTx( uint8_t* Buf, uint32_t Len )
 {
   // leds_on( BIT7 );
-  for( int i=0; i<Len; ++i ) {
+  for( uint32_t i=0; i<Len; ++i ) {
     APP_Rx_Buffer[APP_Rx_ptr_in++] = Buf[i]; // USART_ReceiveData(EVAL_COM1);
     //  To avoid buffer overflow
     if( APP_Rx_ptr_in >= APP_RX_DATA_SIZE ) {
@@ -195,9 +196,8 @@ extern xQueueHandle qh_USB_recv;
   */
 static uint16_t VCP_DataRx( uint8_t* Buf, uint32_t Len )
 {
-  int i;
   portBASE_TYPE wake = pdFALSE;
-  for( i=0; i<Len; ++i ) {
+  for( uint32_t i=0; i<Len; ++i ) {
     xQueueSendFromISR( qh_USB_recv, Buf, &wake  );
   }
   // user_vars[2]  = Len; // debug

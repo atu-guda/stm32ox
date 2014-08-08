@@ -1,6 +1,8 @@
 #ifndef _OX_BASE_H
 #define _OX_BASE_H
 
+#define UNUSED __attribute__((unused))
+
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -29,7 +31,7 @@ typedef const char *const ccstr;
 #define BAD_ADDR ((void*)(0xFFFFFFFF))
 
 
-void taskYieldFun();
+void taskYieldFun(void);
 
 
 // timings for bad loop delays TODO: for other too
@@ -46,13 +48,7 @@ void delay_mcs( uint32_t mcs );
 void delay_bad_n( uint32_t n );
 void delay_bad_s( uint32_t s );
 void delay_bad_ms( uint32_t ms );
-inline void delay_bad_mcs( uint32_t mcs )
-{
-  uint32_t n = mcs * T_MKS_MUL;
-  for( uint32_t i=0; i<n; ++i ) {
-    __asm volatile ( "nop;");
-  }
-}
+void delay_bad_mcs( uint32_t mcs );
 
 // RCC registers for enable devices
 enum RCC_Bus { // indexes in RCC_enr
@@ -63,7 +59,6 @@ enum RCC_Bus { // indexes in RCC_enr
   RCC_Bus4 = 4, RCC_AHB3  = 4,
   RCC_NBUS = 5
 };
-extern reg32 *const RCC_enr[RCC_Bus::RCC_NBUS];
 
 // void devPinConf( GPIO_TypeDef* GPIOx, GPIOMode_TypeDef mode, uint16_t pins );
 
@@ -110,7 +105,7 @@ const GPIOSpeed_TypeDef  GPIO_DFL_Speed = GPIO_High_Speed;
 extern GPIO_InitTypeDef GPIO_Modes[pinMode_MAX];
 
 
-void devPinsConf( GPIO_TypeDef* GPIOx, PinModeNum mode_num, uint16_t pins );
+void devPinsConf( GPIO_TypeDef* GPIOx, enum PinModeNum mode_num, uint16_t pins );
 /** write some (mask based) bits to port, keep all other */
 void GPIO_WriteBits( GPIO_TypeDef* GPIOx, uint16_t PortVal, uint16_t mask );
 
@@ -133,8 +128,10 @@ char* i2dec( int n, char *s );
 }
 #endif
 
-// ------------------------- Devices ---------------------
+// ------------------------- Devices (C++ only)---------------------
+#ifdef __cplusplus
 //
+extern reg32 *const RCC_enr[RCC_Bus::RCC_NBUS];
 
 const int max_dev_pins = 8; // May be more? (ETH)
 
@@ -172,6 +169,7 @@ class DevBase {
 };
 
 
+#endif // C++
 
 #endif
 

@@ -1,3 +1,3 @@
-Small C/C++ library for using with STM33Fxxx microcontollers.
+Small C/C++ library for using with STM32Fxxx microcontollers.
 Uses original STM32 libs, FreeRTOS.
 

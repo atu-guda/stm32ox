@@ -18,8 +18,8 @@ extern char gbuf_a[GBUF_SZ];
 extern char gbuf_b[GBUF_SZ];
 extern int log_buf_idx; // gbuf_b in log place too
 void log_add( const char *s );
-void log_reset();
-void log_print();
+void log_reset(void);
+void log_print(void);
 
 // helper function : converts some names and numbers to address, fail = -1 (BAD_ADDR)
 char* str2addr( const char *str );

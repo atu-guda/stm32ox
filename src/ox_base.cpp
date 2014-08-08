@@ -105,13 +105,21 @@ void die4led( uint16_t n )
     }
   }
   #else
-  while(1) { /* NOP */ };
+  while(1) { delay_bad_ms( n*200 ); /* NOP */ };
   #endif
 }
 
 void GPIO_WriteBits( GPIO_TypeDef* GPIOx, uint16_t PortVal, uint16_t mask )
 {
   GPIOx->ODR = ( PortVal & mask ) | ( GPIOx->ODR & (~mask) );
+}
+
+void delay_bad_mcs( uint32_t mcs )
+{
+  uint32_t n = mcs * T_MKS_MUL;
+  for( uint32_t i=0; i<n; ++i ) {
+    __asm volatile ( "nop;");
+  }
 }
 
 

@@ -97,7 +97,7 @@ void print_user_var( int idx )
 
 // common commands
 //
-int cmd_info( int argc, const char * const * argv )
+int cmd_info( int argc UNUSED, const char * const * argv UNUSED )
 {
   RCC_ClocksTypeDef clst;
   RCC_GetClocksFreq( &clst );
@@ -128,7 +128,7 @@ int cmd_echo( int argc, const char * const * argv )
   return 0;
 }
 
-int cmd_help( int argc, const char * const * argv )
+int cmd_help( int argc UNUSED, const char * const * argv UNUSED)
 {
   pr( "commands:" NL );
   char b1[2]; b1[0] = b1[1] = 0;
@@ -245,7 +245,7 @@ int cmd_die( int argc, const char * const * argv )
   return 0; // never ;-)
 }
 
-int cmd_reboot( int argc, const char * const * argv )
+int cmd_reboot( int argc UNUSED, const char * const * argv UNUSED)
 {
   NVIC_SystemReset();
   return 0; // never ;-)

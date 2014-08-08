@@ -38,7 +38,7 @@ extern int user_vars[N_USER_VARS];
 
 typedef int (*CmdFun)(int argc, const char * const * argv );
 
-void taskYieldFun();
+void taskYieldFun(void);
 
 
 #define CMDS_NMAX 100
@@ -88,6 +88,7 @@ void delay_mcs( uint32_t mcs );
 void delay_bad_n( uint32_t n );
 void delay_bad_s( uint32_t s );
 void delay_bad_ms( uint32_t ms );
+void delay_bad_mcs( uint32_t mcs );
 inline void delay_bad_mcs( uint32_t mcs )
 {
   uint32_t n = mcs * T_MKS_MUL;
@@ -109,8 +110,8 @@ extern char gbuf_a[GBUF_SZ];
 extern char gbuf_b[GBUF_SZ];
 extern int log_buf_idx; // gbuf_b in log place too
 void log_add( const char *s );
-void log_reset();
-void log_print();
+void log_reset(void);
+void log_print(void);
 
 extern const char hex_digits[];
 extern const char dec_digits[];

@@ -5,7 +5,6 @@
   */
 
 #include "stm32f10x_conf.h"
-#include "localfun.h"
 #include "FreeRTOSConfig.h"
 
 
