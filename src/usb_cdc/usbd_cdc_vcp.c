@@ -91,7 +91,7 @@ static uint16_t VCP_DeInit(void)
   * @param  Len: Number of data to be sent (in bytes)
   * @retval Result of the opeartion (USBD_OK in all cases)
   */
-static uint16_t VCP_Ctrl( uint32_t Cmd, uint8_t* Buf, uint32_t Len )
+static uint16_t VCP_Ctrl( uint32_t Cmd, uint8_t* Buf, uint32_t Len UNUSED )
 {
   // leds_toggle( 0x20 );
   // log_add( "C." );

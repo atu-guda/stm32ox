@@ -5,6 +5,8 @@
 // atu:
 #include <stm32f10x_misc.h> // atu: my prefix
 
+void OTG_FS_IRQHandler(void);
+
 /* USB Core and PHY interface configuration.
    Tip: To avoid modifying these defines each time you need to change the USB
         configuration, you can declare the needed define in your toolchain

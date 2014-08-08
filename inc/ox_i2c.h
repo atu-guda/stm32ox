@@ -8,7 +8,7 @@
 #include <stm32f10x_gpio.h>
 #include <stm32f10x_i2c.h>
 
-#include <ox_base.h>
+#include <ox_dev.h>
 
 extern DevConfig I2C1Conf1;
 extern DevConfig I2C1Conf2;

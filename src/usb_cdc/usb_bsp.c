@@ -12,6 +12,8 @@
 #include "usbd_conf.h"
 #include <usbd_cdc_core.h>
 
+#include <ox_base.h>
+
 extern uint32_t USBD_OTG_ISR_Handler( USB_OTG_CORE_HANDLE *pdev );
 
 extern USB_OTG_CORE_HANDLE   USB_OTG_dev; // in main.c
@@ -23,7 +25,7 @@ extern USB_OTG_CORE_HANDLE   USB_OTG_dev; // in main.c
 * @param  pdev ???
 * @retval None
 */
-void USB_OTG_BSP_Init( USB_OTG_CORE_HANDLE *pdev )
+void USB_OTG_BSP_Init( USB_OTG_CORE_HANDLE *pdev UNUSED )
 {
   // leds_on( 0x10 );
   // log_add( "BSP_I " );

@@ -45,9 +45,9 @@ RTINC=$(RTSRC)/include
 ###################################################
 
 ALLFLAGS := -g -O2
-ALLFLAGS += -Wall -Wextra -Wshadow -Wimplicit-function-declaration -Wundef
-ALLFLAGS += -Wredundant-decls -Wmissing-prototypes -Wstrict-prototypes
+ALLFLAGS += -Wall -Wextra -Wundef
 ALLFLAGS += -fno-common -ffunction-sections -fdata-sections
+CWARNFLAGS := -Wimplicit-function-declaration -Wmissing-prototypes -Wstrict-prototypes
 
 ALLFLAGS += -DUSE_STDPERIPH_DRIVER=1
 ALLFLAGS += -ffreestanding
@@ -151,7 +151,7 @@ OBJS0 = $(OBJS0a:.c=.o)
 OBJS  = $(OBJS0:.s=.o)
 OBJS1 = $(addprefix $(OBJDIR)/,$(OBJS))
 
-CFLAGS   = $(ALLFLAGS)  -std=c11
+CFLAGS   = $(ALLFLAGS)  -std=c11 $(CWARNFLAGS)
 CXXFLAGS = $(ALLFLAGS)  -std=c++11 -fno-rtti -fno-exceptions -fno-threadsafe-statics
 
 ###################################################
