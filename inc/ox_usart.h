@@ -8,7 +8,17 @@
 #include <stm32f10x_gpio.h>
 #include <stm32f10x_usart.h>
 
-#include "ox_common.h"
+#include <ox_dev.h>
+
+extern DevConfig USART1Conf1;
+extern DevConfig USART1Conf2;
+extern DevConfig USART2Conf1;
+extern DevConfig USART2Conf2;
+extern DevConfig USART3Conf1;
+extern DevConfig USART3Conf2;
+extern DevConfig UART4Conf1;
+extern DevConfig UART5Conf2;
+
 
 enum UsartModes {
   modeNone = 0,
@@ -21,143 +31,52 @@ enum UsartModes {
   modeSync
 };
 
-
-struct UsartModeBase {
-  enum {
-    Pin_TX = 0, Pin_RX, Pin_CTS, Pin_RTS, Pin_CK, Pin_NUM
-  };
-  enum { Req_n = 0 };
-  const static int pins[Pin_NUM];
-};
-const int UsartModeBase::pins[Pin_NUM] = {
-    0, // TX
-    0, // RX
-    0, // CK
-    0, // CTS
-    0  // RCK
-};
-// debug on PC host only
-const char *const usart_pin_name[] = { "TX", "RX", "CK", "CTS", "RTS",  "?NUM", "??", "???" };
+extern DevMode UsartModeAsync;
+extern DevMode UsartModeHWFC;
+//extern DevMode UsartModeHalfDuplex;
+//extern DevMode UsartModeIRDA;
+//extern DevMode UsartModeSmartCard;
+//extern DevMode UsartModeLin;
+extern DevMode UsartModeSync;
 
 
-struct UsartMode2Wire : public UsartModeBase {
-  enum { Req_n = 2 };
-  const static int pins[Pin_NUM];
-};
-const int UsartMode2Wire::pins[Pin_NUM] = {
-    GPIO_Mode_AF_PP, // TX
-    GPIO_Mode_IPU,   // RX
-    0,               // CK
-    0,               // CTS
-    0                // RTS
-};
 
-
-struct UsartMode4Wire : public UsartModeBase {
-  enum { Req_n = 4 };
-  const static int pins[Pin_NUM];
-};
-const int UsartMode4Wire::pins[] = {
-    GPIO_Mode_AF_PP, // TX
-    GPIO_Mode_IPU,   // RX
-    0,               // CK
-    GPIO_Mode_IPU,   // CTS
-    GPIO_Mode_AF_PP  // RTS
-};
-
-
-struct UsartModeAsync : public UsartMode2Wire {
-  enum {
-    mode = modeAsync
-  };
-};
-
-struct UsartModeHWFC : public UsartMode4Wire {
-  enum {
-    mode = modeHWFC
-  };
-};
-
-struct UsartModeHalfDuplex : public UsartModeBase {
-  enum { Req_n = 1 };
-  enum {
-    mode = modeHalfDuplex
-  };
-  const static int pins[Pin_NUM];
-};
-const int UsartModeHalfDuplex::pins[] = {
-    GPIO_Mode_AF_PP, // TX
-    0,               // RX
-    0,               // CK
-    0,               // CTS
-    0                // RTS
-};
-
-struct UsartModeIRDA : public UsartModeAsync {
-  enum {
-    mode = modeIRDA
-  };
-};
-
-struct UsartModeLin : public UsartModeAsync {
-  enum {
-    mode = modeLin
-  };
-};
-
-struct UsartModeSmartCard : public UsartModeHalfDuplex {
-  enum {
-    mode = modeSmartCard
-  };
-};
-
-struct UsartModeSyn : public UsartModeBase {
-  enum {
-    mode = modeSync
-  };
-  enum { Req_n = 3 };
-  const static int pins[Pin_NUM];
-};
-const int UsartModeSyn::pins[] = {
-    GPIO_Mode_AF_PP, // TX
-    GPIO_Mode_IPU,   // RX
-    GPIO_Mode_AF_PP, // CK
-    0,               // CTS
-    0                // RTS
-};
-
-
-template<typename UsartConf, typename UsartMode>
-class Usart : public DevBase<UsartConf,UsartMode> {
+class Usart : public DevBase {
   public:
-   Usart( uint32_t baud )
-     : baudRate(baud),
-       usart( (USART_TypeDef*)(UsartConf::base))
+   enum {
+     CR1_UE  = 0x2000,  //* Enable
+     CR1_SBK = 0x0001   //* Break Character
+   };
+   Usart( const DevConfig *dcfg, const DevMode *dmode, uint32_t baud )
+     : DevBase( dcfg, dmode ),
+       usart( (USART_TypeDef*)(dcfg->base)),
+       uitd{ baud, USART_WordLength_8b, USART_StopBits_1,
+             USART_Parity_No, USART_Mode_Rx | USART_Mode_Tx,
+             USART_HardwareFlowControl_None }
     {
-      static_assert( UsartConf::canMode( UsartMode::Req_n ), "Unsupported USART mode" );
     }
-   void init() {};
-   void deInit() {};
+   void init();
+   void deInit();
    void initHW();
+   void enable()  { usart->CR1 |= CR1_UE; };
+   void disable() { usart->CR1 &= ~CR1_UE; };
+   void itConfig( uint16_t it, FunctionalState en );
    USART_TypeDef* getDev() { return usart; };
-   void send( uint16_t v ) { USART_SendData( usart, v); };
-   int16_t recv() { return USART_ReceiveData( usart ); };
+   USART_InitTypeDef* getInitStruct() { return &uitd; }
+   void send( uint16_t v ) { usart->DR = ( v & (uint16_t)0x01FF); };
+   int16_t recv() { return (uint16_t)( usart->DR & (uint16_t)0x01FF ); };
+   void send_brk() { usart->CR1 |= CR1_SBK; };
+   bool checkFlag( uint16_t flg );
+   void clearFlag( uint16_t flg );
+   uint16_t getSR() { return usart->SR; }
+   ITStatus getITStatus( uint16_t it );
+   void clearITPendingBit( uint16_t it );
+
   protected:
-   uint32_t baudRate;
-   uint16_t wordLength = USART_WordLength_8b;
-   uint16_t stopBits = USART_StopBits_1;
-   uint16_t parity = USART_Parity_No;
-   uint16_t mode =  USART_Mode_Rx | USART_Mode_Tx; // TODO: to config
    USART_TypeDef *usart;
+   USART_InitTypeDef uitd;
 };
-
-template<typename UsartConf, typename UsartMode>
-void Usart<UsartConf, UsartMode>::initHW()
-{
-  // std::cout << "USART mode " << UsartMode::mode << std::endl;
-  DevBase<UsartConf, UsartMode>::initHW();
-
-}
 
 
 #endif
+// vim: path=.,/usr/share/stm32lib/inc/,/usr/arm-none-eabi/include

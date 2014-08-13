@@ -23,25 +23,25 @@ reg32 *const RCC_enr[RCC_Bus::RCC_NBUS] {
 };
 #elif defined(STM32F2)
 reg32 *const RCC_enr[RCC_Bus::RCC_NBUS] {
-  &(RCC->AHB1ENR),
   &(RCC->APB1ENR),
   &(RCC->APB2ENR),
+  &(RCC->AHB1ENR),
   &(RCC->AHB2ENR),
   &(RCC->AHB3ENR)
 };
 #elif defined(STM32F3)
 reg32 *const RCC_enr[RCC_Bus::RCC_NBUS] {
-  &(RCC->AHBENR),
   &(RCC->APB1ENR),
   &(RCC->APB2ENR),
+  &(RCC->AHBENR),
   nullptr,
   nullptr
 };
 #elif defined(STM32F4)
 reg32 *const RCC_enr[RCC_Bus::RCC_NBUS] {
-  &(RCC->AHB1ENR),
   &(RCC->APB1ENR),
   &(RCC->APB2ENR),
+  &(RCC->AHB1ENR),
   &(RCC->AHB2ENR),
   &(RCC->AHB3ENR)
 };
@@ -68,7 +68,7 @@ void DevBase::initHW()
 
   // pins config
   for( int i=0; i<max_dev_pins; ++i ) {
-    if( mode->pins[i] == pinMode_NONE
+    if( mode->pins[i] == pinMode_NONE // TODO: invert + simplify
         || cfg->pins[i].port == nullptr
         || cfg->pins[i].pin == 0
     ) {

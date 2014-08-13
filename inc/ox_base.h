@@ -30,6 +30,8 @@ typedef __IO uint32_t reg32;
 typedef const char *const ccstr;
 #define BAD_ADDR ((void*)(0xFFFFFFFF))
 
+#define ARR_SZ(x) (sizeof(x) / sizeof(x[0]))
+#define ARR_AND_SZ(x) x, (sizeof(x) / sizeof(x[0]))
 
 void taskYieldFun(void);
 
@@ -59,8 +61,6 @@ enum RCC_Bus { // indexes in RCC_enr
   RCC_Bus4 = 4, RCC_AHB3  = 4,
   RCC_NBUS = 5
 };
-
-// void devPinConf( GPIO_TypeDef* GPIOx, GPIOMode_TypeDef mode, uint16_t pins );
 
 enum PinModeNum {
   pinMode_NONE = 0,
