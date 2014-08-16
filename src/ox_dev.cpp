@@ -64,7 +64,14 @@ void DevBase::initHW()
     }
   }
 
-  // TODO: remap, irq
+  // remap
+  #ifdef STM32F1
+  if( cfg->remap ) {
+    AFIO->MAPR |= cfg->remap;
+  }
+  #else
+    uint8_t afn = (uint8_t)(cfg->remap);
+  #endif
 
   // pins config
   for( int i=0; i<mode->pin_num; ++i ) {
@@ -73,7 +80,25 @@ void DevBase::initHW()
         && cfg->pins[i].pin != 0
     ) {
       devPinsConf( cfg->pins[i].port, mode->pins[i], cfg->pins[i].pin );
+      #ifndef STM32F1
+      if( afn ) {
+        GPIO_PinAFConfig( cfg->pins[i].port, mode->pins[i], afn );
+      }
+      #endif
     }
   }
+}
+
+void DevBase::initIRQ( uint8_t prio, uint8_t n  )
+{
+  NVIC_InitTypeDef nv;
+  nv.NVIC_IRQChannel = ( n == 1 ) ? cfg->irq_num1 : cfg->irq_num0;
+  if( nv.NVIC_IRQChannel == 0 ) {
+    return;
+  }
+  nv.NVIC_IRQChannelPreemptionPriority = prio;
+  nv.NVIC_IRQChannelSubPriority = 0;
+  nv.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init( &nv );
 }
 
