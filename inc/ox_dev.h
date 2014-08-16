@@ -14,10 +14,12 @@ struct PinPlace
 
 struct DevConfig {
   uint32_t base;               //* Base address: real use in real periph
-  uint32_t rcc_bits[RCC_NBUS]; //* Pits to set in RCC_enr to enable device, pins, remap. TODO: + reset bits
+  uint32_t rcc_bits[RCC_NBUS]; //* Bits to set in RCC_enr to enable device, pins, remap. TODO: + reset bits
   uint32_t remap;              //* Remap flag: may be more of F4?
   PinPlace *pins;              //* Describes { port, pin } for given config
-  uint8_t pin_num;             //* size of "pins" array
+  uint8_t  pin_num;            //* size of "pins" array
+  uint8_t  irq_num0;           //* NVIC main IRQ number
+  uint8_t  irq_num1;           //* NVIC aux  IRQ number (error, ... )
 };
 
 

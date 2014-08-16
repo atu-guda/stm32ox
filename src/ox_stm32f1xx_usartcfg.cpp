@@ -20,7 +20,8 @@ DevConfig USART1Conf1 {
   USART1_BASE,   // base
   { 0, RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPAEN, 0, 0, 0 },
   0, // remap
-  ARR_AND_SZ(USART1Conf1_pins)
+  ARR_AND_SZ(USART1Conf1_pins),
+  USART1_IRQn, 0
 };
 
 PinPlace USART1Conf2_pins[]  {
@@ -35,7 +36,8 @@ DevConfig USART1Conf2 {
   USART1_BASE,   // base
   { 0, RCC_APB2ENR_USART1EN | RCC_APB2ENR_IOPAEN |RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN, 0, 0, 0 },
   AFIO_MAPR_USART1_REMAP, // remap
-  ARR_AND_SZ(USART1Conf2_pins)
+  ARR_AND_SZ(USART1Conf2_pins),
+  USART1_IRQn, 0
 };
 
 
@@ -52,7 +54,8 @@ DevConfig USART2Conf1 {
   USART2_BASE,   // base
   { RCC_APB1ENR_USART2EN, RCC_APB2ENR_IOPAEN , 0, 0, 0 },
   0, // remap
-  ARR_AND_SZ(USART2Conf1_pins)
+  ARR_AND_SZ(USART2Conf1_pins),
+  USART2_IRQn, 0
 };
 
 
@@ -68,7 +71,8 @@ DevConfig USART2Conf2 {
   USART2_BASE,   // base
   { RCC_APB1ENR_USART2EN, RCC_APB2ENR_IOPDEN | RCC_APB2ENR_IOPAEN | RCC_APB2ENR_AFIOEN, 0, 0, 0 },
   AFIO_MAPR_USART2_REMAP, // remap
-  ARR_AND_SZ(USART2Conf2_pins)
+  ARR_AND_SZ(USART2Conf2_pins),
+  USART2_IRQn, 0
 };
 
 
@@ -84,7 +88,8 @@ DevConfig USART3Conf1 {
   USART3_BASE,   // base
   { RCC_APB1ENR_USART3EN, RCC_APB2ENR_IOPBEN, 0, 0, 0 },
   0, // remap
-  ARR_AND_SZ(USART3Conf1_pins)
+  ARR_AND_SZ(USART3Conf1_pins),
+  USART3_IRQn, 0
 };
 
 PinPlace USART3Conf2_pins[]  {
@@ -99,10 +104,11 @@ DevConfig USART3Conf2 {
   USART3_BASE,   // base
   { RCC_APB1ENR_USART3EN,  RCC_APB2ENR_IOPCEN | RCC_APB2ENR_AFIOEN, 0, 0, 0 },
   AFIO_MAPR_USART3_REMAP, // remap
-  ARR_AND_SZ(USART3Conf2_pins)
+  ARR_AND_SZ(USART3Conf2_pins),
+  USART3_IRQn, 0
 };
 
-PinPlace USART4Conf1_pins[]  {
+PinPlace UART4Conf1_pins[]  {
   { GPIOC, GPIO_Pin_10 }, // TX
   { GPIOC, GPIO_Pin_11 }  // RX
 };
@@ -111,10 +117,11 @@ DevConfig UART4Conf1 {
   UART4_BASE,   // base
   { RCC_APB1ENR_UART4EN, RCC_APB2ENR_IOPCEN, 0, 0, 0 },
   0, // remap
-  ARR_AND_SZ(USART4Conf1_pins)
+  ARR_AND_SZ(UART4Conf1_pins),
+  UART4_IRQn, 0
 };
 
-PinPlace USART5Conf1_pins[]  {
+PinPlace UART5Conf1_pins[]  {
   { GPIOC, GPIO_Pin_10 }, // TX
   { GPIOD, GPIO_Pin_2  }  // RX
 };
@@ -123,7 +130,8 @@ DevConfig UART5Conf1 {
   UART5_BASE,   // base
   { RCC_APB1ENR_UART5EN, RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN, 0, 0, 0 },
   0, // remap
-  ARR_AND_SZ(USART5Conf1_pins)
+  ARR_AND_SZ(UART5Conf1_pins),
+  UART5_IRQn, 0
 };
 
 

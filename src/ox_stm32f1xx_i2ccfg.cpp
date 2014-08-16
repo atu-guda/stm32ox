@@ -14,7 +14,8 @@ DevConfig I2C1Conf1 {
   I2C1_BASE,   // base
   { RCC_APB1ENR_I2C1EN, RCC_APB2ENR_IOPBEN, 0, 0, 0 },
   0, // remap
-  ARR_AND_SZ( I2C1Conf1_pins )
+  ARR_AND_SZ( I2C1Conf1_pins ),
+  I2C1_EV_IRQn, I2C1_ER_IRQn
 };
 
 PinPlace I2C1Conf2_pins[]  {
@@ -27,7 +28,8 @@ DevConfig I2C1Conf2 {
   I2C1_BASE,   // base
   { RCC_APB1ENR_I2C1EN, RCC_APB2ENR_IOPBEN | RCC_APB2ENR_AFIOEN, 0, 0, 0 },
   AFIO_MAPR_I2C1_REMAP, // remap
-  ARR_AND_SZ( I2C1Conf2_pins )
+  ARR_AND_SZ( I2C1Conf2_pins ),
+  I2C1_EV_IRQn, I2C1_ER_IRQn
 };
 
 
@@ -43,7 +45,8 @@ DevConfig I2C2Conf1 {
   I2C2_BASE,   // base
   { RCC_APB1ENR_I2C2EN, RCC_APB2ENR_IOPBEN, 0, 0, 0 },
   0, // remap
-  ARR_AND_SZ( I2C2Conf1_pins )
+  ARR_AND_SZ( I2C2Conf1_pins ),
+  I2C2_EV_IRQn, I2C2_ER_IRQn
 };
 
 
