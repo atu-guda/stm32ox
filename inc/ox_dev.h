@@ -5,8 +5,6 @@
 
 extern reg32 *const RCC_enr[RCC_Bus::RCC_NBUS];
 
-const int max_dev_pins = 8; // May be more? (ETH)
-
 //* Single pin description
 struct PinPlace
 {
@@ -25,9 +23,8 @@ struct DevConfig {
 
 struct DevMode {
   uint32_t mode;   //* Abstract mode: may be used at real devices at will
-  uint8_t n_req;   // TODO: remove
-  uint8_t pin_num; // TODO: remove
-  PinModeNum pins[max_dev_pins]; //* Required pin config: really index in GPIO_Modes[]
+  PinModeNum *pins; //* Required pin config: really index in GPIO_Modes[]
+  uint8_t pin_num;
 };
 
 

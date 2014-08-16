@@ -67,14 +67,13 @@ void DevBase::initHW()
   // TODO: remap, irq
 
   // pins config
-  for( int i=0; i<max_dev_pins; ++i ) {
-    if( mode->pins[i] == pinMode_NONE // TODO: invert + simplify
-        || cfg->pins[i].port == nullptr
-        || cfg->pins[i].pin == 0
+  for( int i=0; i<mode->pin_num; ++i ) {
+    if( mode->pins[i] != pinMode_NONE
+        && cfg->pins[i].port != nullptr
+        && cfg->pins[i].pin != 0
     ) {
-      continue;
+      devPinsConf( cfg->pins[i].port, mode->pins[i], cfg->pins[i].pin );
     }
-    devPinsConf( cfg->pins[i].port, mode->pins[i], cfg->pins[i].pin );
   }
 }
 

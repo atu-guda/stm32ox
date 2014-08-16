@@ -1,29 +1,31 @@
 #include <ox_i2c.h>
 
+PinModeNum  I2CModeI2C_Master_pins[] {
+  pinMode_AF_OD, // CLK
+  pinMode_AF_OD, // SDA
+};
 
 DevMode I2CModeI2C_Master = {
   I2C_Mode_I2C, // mode
-  2,            // n_req
-  3,            // pin_num
-  { pinMode_AF_OD, // CLK
-    pinMode_AF_OD, // SDA
-    pinMode_NONE,  // no SMBA
-    pinMode_NONE, pinMode_NONE,
-    pinMode_NONE, pinMode_NONE, pinMode_NONE
-  }
+  ARR_AND_SZ( I2CModeI2C_Master_pins )
 };
+
+
+
+PinModeNum  I2CModeSMB_Master_pins[] {
+  pinMode_AF_OD, // CLK
+  pinMode_AF_OD, // SDA
+  pinMode_AF_OD  // SMBA
+};
+
 
 DevMode I2CModeSMB_Master = {
   I2C_Mode_SMBusHost, // mode
-  3,            // n_req
-  3,            // pin_num
-  { pinMode_AF_OD, // CLK
-    pinMode_AF_OD, // SDA
-    pinMode_AF_OD, // no SMBA
-    pinMode_NONE, pinMode_NONE,
-    pinMode_NONE, pinMode_NONE, pinMode_NONE
-  }
+  ARR_AND_SZ( I2CModeSMB_Master_pins )
 };
+
+
+
 
 void DevI2C::init()
 {
@@ -39,7 +41,6 @@ void DevI2C::init()
   err = 0; n_trans = 0;
 }
 
-// I2C_WAITFOR( I2C_EVENT_MASTER_BYTE_TRANSMITTED, -4 );
 
 void DevI2C::initHW()
 {

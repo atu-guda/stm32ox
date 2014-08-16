@@ -1,49 +1,46 @@
 #include <ox_usart.h>
 
+PinModeNum  UsartModeAsync_pins[] {
+  pinMode_AF_PP, // TX
+  pinMode_IPU    // RX
+  // no CTS, no RTS, no CK
+};
+
 DevMode UsartModeAsync
 {
   modeAsync,
-  2,
-  2,
-  {
-    pinMode_AF_PP, // TX
-    pinMode_IPU,   // RX
-    pinMode_NONE,  // no CTS
-    pinMode_NONE,  // no RTS
-    pinMode_NONE,  // no CK
-    pinMode_NONE, pinMode_NONE, pinMode_NONE
-  }
+  ARR_AND_SZ( UsartModeAsync_pins )
+};
+
+PinModeNum  UsartModeHWFC_pins[] {
+  pinMode_AF_PP, // TX
+  pinMode_IPU,   // RX
+  pinMode_IPU,   // CTS
+  pinMode_AF_PP  // RTS
+  // no CK
 };
 
 
 DevMode UsartModeHWFC
 {
   modeHWFC,
-  4,
-  4,
-  {
-    pinMode_AF_PP, // TX
-    pinMode_IPU,   // RX
-    pinMode_IPU,   // CTS
-    pinMode_AF_PP, // RTS
-    pinMode_NONE,  // no CK
-    pinMode_NONE, pinMode_NONE, pinMode_NONE
-  }
+  ARR_AND_SZ( UsartModeHWFC_pins )
+};
+
+
+
+PinModeNum  UsartModeSync_pins[] {
+  pinMode_AF_PP, // TX
+  pinMode_IPU,   // RX
+  pinMode_NONE,  // no CTS
+  pinMode_NONE,  // no RTS
+  pinMode_AF_PP  // CK
 };
 
 DevMode UsartModeSync
 {
   modeSync,
-  3,
-  3,
-  {
-    pinMode_AF_PP, // TX
-    pinMode_IPU,   // RX
-    pinMode_NONE,  // no CTS
-    pinMode_NONE,  // no RTS
-    pinMode_AF_PP, // CK
-    pinMode_NONE, pinMode_NONE, pinMode_NONE
-  }
+  ARR_AND_SZ( UsartModeSync_pins )
 };
 
 // ---------------------------------------------------------------------------
