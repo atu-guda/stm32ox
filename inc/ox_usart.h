@@ -69,8 +69,12 @@ class Usart : public DevBase {
    bool checkFlag( uint16_t flg );
    void clearFlag( uint16_t flg );
    uint16_t getSR() { return usart->SR; }
+   uint16_t getCR1() { return usart->CR1; }
    ITStatus getITStatus( uint16_t it );
    void clearITPendingBit( uint16_t it );
+
+   int sendStrLoop( const char* s );
+   int sendBlockLoop( const uint8_t* d, int n );
 
   protected:
    USART_TypeDef *usart;

@@ -95,3 +95,43 @@ void Usart::clearITPendingBit( uint16_t it )
   return USART_ClearITPendingBit( usart, it );
 }
 
+
+int Usart::sendStrLoop( const char* s )
+{
+  if( !s || !s[0] ) {
+    return 0;
+  }
+
+  int ns = 0, nl;
+  for( ; *s; ++s ) {
+    nl = 0;
+    while( checkFlag( USART_FLAG_TXE ) == RESET ) {
+      taskYieldFun(); // TODO: limit
+      ++nl;
+      if( nl > 1000 ) { // DEBUG
+        break;
+      }
+    }
+    send( *s );
+    ++ns;
+  }
+  return ns;
+}
+
+int Usart::sendBlockLoop( const uint8_t* d, int n )
+{
+  if( !d  ||  n < 1 ) {
+    return 0;
+  }
+
+  int ns = 0;
+  for( ; *d; ++d ) {
+    while( checkFlag( USART_FLAG_TXE ) == RESET ) {
+      taskYieldFun(); // TODO: limit
+    }
+    send( *d );
+    ++ns;
+  }
+  return ns;
+}
+
