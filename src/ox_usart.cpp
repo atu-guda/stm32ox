@@ -112,7 +112,7 @@ int Usart::sendStrLoop( const char* s )
         break;
       }
     }
-    send( *s );
+    sendRaw( *s );
     ++ns;
   }
   return ns;
@@ -129,7 +129,7 @@ int Usart::sendBlockLoop( const uint8_t* d, int n )
     while( checkFlag( USART_FLAG_TXE ) == RESET ) {
       taskYieldFun(); // TODO: limit
     }
-    send( *d );
+    sendRaw( *d );
     ++ns;
   }
   return ns;

@@ -63,9 +63,9 @@ class Usart : public DevBase {
    void itConfig( uint16_t it, FunctionalState en );
    USART_TypeDef* getDev() { return usart; };
    USART_InitTypeDef* getInitStruct() { return &uitd; }
-   void send( uint16_t v ) { usart->DR = ( v & (uint16_t)0x01FF); };
-   int16_t recv() { return (uint16_t)( usart->DR & (uint16_t)0x01FF ); };
-   void send_brk() { usart->CR1 |= CR1_SBK; };
+   void sendRaw( uint16_t v ) { usart->DR = ( v & (uint16_t)0x01FF); };
+   int16_t recvRaw() { return (uint16_t)( usart->DR & (uint16_t)0x01FF ); };
+   void sendBrk() { usart->CR1 |= CR1_SBK; };
    bool checkFlag( uint16_t flg );
    void clearFlag( uint16_t flg );
    uint16_t getSR() { return usart->SR; }
