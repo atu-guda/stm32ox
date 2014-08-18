@@ -45,20 +45,22 @@ class Usart : public DevBase {
   public:
    enum {
      CR1_UE  = 0x2000,  //* Enable
-     CR1_SBK = 0x0001   //* Break Character
+     CR1_SBK = 0x0001,  //* Break Character
+     IBUF_SZ = 128,     //* Input buffer size
+     OBUF_SZ = 128      //* Output buffer size
    };
    Usart( const DevConfig *dcfg, const DevMode *dmode, uint32_t baud )
      : DevBase( dcfg, dmode ),
        usart( (USART_TypeDef*)(dcfg->base)),
        uitd{ baud, USART_WordLength_8b, USART_StopBits_1,
              USART_Parity_No, USART_Mode_Rx | USART_Mode_Tx,
-             USART_HardwareFlowControl_None }
+             USART_HardwareFlowControl_None } // TODO: from mode
     {
     }
    void init();
    void deInit();
    void initHW();
-   void enable()  { usart->CR1 |= CR1_UE; };
+   void enable()  { usart->CR1 |=  CR1_UE;  };
    void disable() { usart->CR1 &= ~CR1_UE; };
    void itConfig( uint16_t it, FunctionalState en );
    USART_TypeDef* getDev() { return usart; };
@@ -70,16 +72,40 @@ class Usart : public DevBase {
    void clearFlag( uint16_t flg );
    uint16_t getSR() { return usart->SR; }
    uint16_t getCR1() { return usart->CR1; }
+   uint16_t getSRErr() const { return sr_err; }
    ITStatus getITStatus( uint16_t it );
    void clearITPendingBit( uint16_t it );
 
    int sendStrLoop( const char* s );
-   int sendBlockLoop( const uint8_t* d, int n );
+   int sendBlockLoop( const char* d, int n );
+   int sendStr( const char* s );
+   int sendBlock( const char* d, int n );
+
+   void setOnRecv( void (*new_fun)(char) ) { on_recv = new_fun; }
+   void handleIRQ();
+   void taskIO();
+
+   // debug:
+   uint16_t getIbuf_s() const { return ibuf_s; }
+   uint16_t getIbuf_e() const { return ibuf_e; }
+   uint16_t getObuf_s() const { return obuf_s; }
+   uint16_t getObuf_e() const { return obuf_e; }
+   bool     getOnTrans() const { return on_transmit; }
 
   protected:
    USART_TypeDef *usart;
    USART_InitTypeDef uitd;
+   void (*on_recv)( char c ) = nullptr;
+   uint16_t sr_err = 0;
+   uint16_t ibuf_s = 0, ibuf_e = 0, obuf_s = 0, obuf_e = 0;
+   bool on_transmit = false;
+   char ibuf[IBUF_SZ];
+   char obuf[OBUF_SZ];
 };
+
+#define STD_USART_IRQ( n, obj ) \
+  void USART##n_IRQHandler(void) { obj.handleIRQ(); }
+
 
 
 #endif

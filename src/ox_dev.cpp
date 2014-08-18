@@ -92,10 +92,11 @@ void DevBase::initHW()
 void DevBase::initIRQ( uint8_t prio, uint8_t n  )
 {
   NVIC_InitTypeDef nv;
-  nv.NVIC_IRQChannel = ( n == 1 ) ? cfg->irq_num1 : cfg->irq_num0;
-  if( nv.NVIC_IRQChannel == 0 ) {
+  uint8_t ch = ( n == 1 ) ? cfg->irq_num1 : cfg->irq_num0;
+  if( ch == 0 ) {
     return;
   }
+  nv.NVIC_IRQChannel = ch;
   nv.NVIC_IRQChannelPreemptionPriority = prio;
   nv.NVIC_IRQChannelSubPriority = 0;
   nv.NVIC_IRQChannelCmd = ENABLE;
