@@ -44,7 +44,7 @@ RTINC=$(RTSRC)/include
 
 ###################################################
 
-ALLFLAGS := -g -O2
+ALLFLAGS := -g3 -O2
 ALLFLAGS += -Wall -Wextra -Wundef
 ALLFLAGS += -fno-common -ffunction-sections -fdata-sections
 CWARNFLAGS := -Wimplicit-function-declaration -Wmissing-prototypes -Wstrict-prototypes
@@ -72,17 +72,18 @@ ifeq "$(MCBASE)" "STM32F2"
   ARCHFLAGS = -mthumb -mcpu=cortex-m3 -mfix-cortex-m3-ldrd
 endif
 ifeq "$(MCBASE)" "STM32F3"
-  ARCHFLAGS = -mthumb -mcpu=cortex-m4f -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+  ARCHFLAGS = -mthumb -mcpu=cortex-m4 -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 endif
 ifeq "$(MCBASE)" "STM32F4"
-  ARCHFLAGS += -mthumb -mcpu=cortex-m4f -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+  ARCHFLAGS += -mthumb -mcpu=cortex-m4 -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 endif
 
 
 ALLFLAGS += $(ARCHFLAGS)
 ALLFLAGS += $(CFLAGS_ADD)
 
-LDFLAGS = --static # -nostartfiles
+LDFLAGS  = --static # -nostartfiles
+LDFLAGS += -g3
 LDFLAGS += -T$(LDSCRIPT)
 LDFLAGS += -Wl,-Map=$(PROJ_NAME).map
 LDFLAGS += -Wl,--gc-sections
