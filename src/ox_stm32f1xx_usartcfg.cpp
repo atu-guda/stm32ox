@@ -1,7 +1,4 @@
-#include <array>
 #include <ox_usart.h>
-
-using namespace std;
 
 #ifndef STM32F1
  #error "This file is only for STM32F1xx series"

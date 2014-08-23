@@ -4,7 +4,6 @@
 // for debug
 #include <ox_debug1.h>
 #include <ox_gpio.h>
-#include <board_stm32f107_atu_x1.h>
 
 PinModeNum  UsartModeAsync_pins[] {
   pinMode_AF_PP, // TX

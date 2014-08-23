@@ -1,0 +1,6 @@
+Simple USART usage:
+on every received char puts string with its code.
+
+Use USART2: A2 = TX, A3 = RX.
+On my host used small FT232RL board to connect with.
+

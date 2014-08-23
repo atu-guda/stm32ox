@@ -147,6 +147,8 @@ void devPinsConf( GPIO_TypeDef* GPIOx, enum PinModeNum mode_num, uint16_t pins )
 /** write some (mask based) bits to port, keep all other */
 void GPIO_WriteBits( GPIO_TypeDef* GPIOx, uint16_t PortVal, uint16_t mask );
 
+/** return position of first setted bit LSB=0, or FF if 0 */
+uint8_t numFirstBit( uint32_t a );
 
 extern const char hex_digits[];
 extern const char dec_digits[];

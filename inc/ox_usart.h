@@ -1,12 +1,17 @@
 #ifndef _OX_USART_H
 #define _OX_USART_H
 
-// #ifdef STM32F1
-// #endif
-
-#include <stm32f10x.h>
-#include <stm32f10x_gpio.h>
-#include <stm32f10x_usart.h>
+#if defined STM32F1
+ #include <stm32f10x_usart.h>
+#elif defined STM32F2
+ #include <stm32f2xx_usart.h>
+#elif defined STM32F3
+ #include <stm32f30x_usart.h>
+#elif defined STM32F4
+ #include <stm32f4xx_usart.h>
+#else
+ #error "Undefined MC type"
+#endif // STM32Fxxx
 
 #include <ox_dev.h>
 
@@ -18,6 +23,7 @@ extern DevConfig USART3Conf1;
 extern DevConfig USART3Conf2;
 extern DevConfig UART4Conf1;
 extern DevConfig UART5Conf2;
+extern DevConfig USART6Conf1;
 
 
 enum UsartModes {

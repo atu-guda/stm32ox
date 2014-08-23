@@ -45,6 +45,17 @@ void devPinsConf( GPIO_TypeDef* GPIOx, enum PinModeNum mode_num, uint16_t pins )
   GPIO_Init( GPIOx, &gp );
 }
 
+uint8_t numFirstBit( uint32_t a )
+{
+  for( uint8_t n = 0; n<sizeof(a)*8; ++n ) {
+    if( a & 1 ) {
+      return n;
+    }
+    a >>= 1;
+  }
+  return 0xFF;
+}
+
 
 void taskYieldFun()
 {

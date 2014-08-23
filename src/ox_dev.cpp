@@ -69,7 +69,7 @@ void DevBase::initHW()
     AFIO->MAPR |= cfg->remap;
   }
   #else
-    uint8_t afn = (uint8_t)(cfg->remap);
+  uint8_t afn = (uint8_t)(cfg->remap);
   #endif
 
   // pins config
@@ -81,7 +81,10 @@ void DevBase::initHW()
       devPinsConf( cfg->pins[i].port, mode->pins[i], cfg->pins[i].pin );
       #ifndef STM32F1
       if( afn ) {
-        GPIO_PinAFConfig( cfg->pins[i].port, mode->pins[i], afn );
+        uint8_t np = numFirstBit( cfg->pins[i].pin );
+        if( np < PORT_BITS ) {
+          GPIO_PinAFConfig( cfg->pins[i].port, np, afn );
+        }
       }
       #endif
     }
