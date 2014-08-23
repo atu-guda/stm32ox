@@ -46,25 +46,25 @@
   *-----------------------------------------------------------------------------
   *        System Clock source                    | PLL (HSE)
   *-----------------------------------------------------------------------------
-  *        SYSCLK(Hz)                             | 84000000
+  *        SYSCLK(Hz)                             | 64000000
   *-----------------------------------------------------------------------------
-  *        HCLK(Hz)                               | 84000000
+  *        HCLK(Hz)                               | 16000000
   *-----------------------------------------------------------------------------
-  *        AHB Prescaler                          | 1
+  *        AHB Prescaler                          | 4
   *-----------------------------------------------------------------------------
-  *        APB1 Prescaler                         | 4
+  *        APB1 Prescaler                         | 1
   *-----------------------------------------------------------------------------
-  *        APB2 Prescaler                         | 2
+  *        APB2 Prescaler                         | 1
   *-----------------------------------------------------------------------------
   *        HSE Frequency(Hz)                      | 8000000
   *-----------------------------------------------------------------------------
-  *        PLL_M                                  | 8
+  *        PLL_M                                  | 4
   *-----------------------------------------------------------------------------
-  *        PLL_N                                  | 336
+  *        PLL_N                                  | 192
   *-----------------------------------------------------------------------------
-  *        PLL_P                                  | 4
+  *        PLL_P                                  | 6
   *-----------------------------------------------------------------------------
-  *        PLL_Q                                  | 7
+  *        PLL_Q                                  | 8
   *-----------------------------------------------------------------------------
   *        PLLI2S_N                               | NA
   *-----------------------------------------------------------------------------
@@ -74,9 +74,9 @@
   *-----------------------------------------------------------------------------
   *        VDD(V)                                 | 3,3
   *-----------------------------------------------------------------------------
-  *        Main regulator output voltage          | Scale2 mode
+  *        Main regulator output voltage          | Scale1 mode
   *-----------------------------------------------------------------------------
-  *        Flash Latency(WS)                      | 2
+  *        Flash Latency(WS)                      | 0
   *-----------------------------------------------------------------------------
   *        Prefetch Buffer                        | OFF
   *-----------------------------------------------------------------------------
@@ -122,6 +122,11 @@
 
 #include "stm32f4xx.h"
 
+#define SYSCLK_FREQ        16
+
+#if SYSCLK_FREQ != REQ_SYSCLK_FREQ
+  #warning SYSCLK_FREQ != REQ_SYSCLK_FREQ
+#endif
 /**
   * @}
   */
@@ -152,14 +157,14 @@
 
 /************************* PLL Parameters *************************************/
 /* PLL_VCO = (HSE_VALUE or HSI_VALUE / PLL_M) * PLL_N */
-#define PLL_M      8
-#define PLL_N      336
+#define PLL_M      4
+#define PLL_N      192
 
 /* SYSCLK = PLL_VCO / PLL_P */
-#define PLL_P      4
+#define PLL_P      6
 
 /* USB OTG FS, SDIO and RNG Clock =  PLL_VCO / PLLQ */
-#define PLL_Q      7
+#define PLL_Q      8
 
 /******************************************************************************/
 
@@ -179,7 +184,7 @@
   * @{
   */
 
-  uint32_t SystemCoreClock = 84000000;
+  uint32_t SystemCoreClock = 16000000;
 
   __I uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 6, 7, 8, 9};
 
@@ -372,18 +377,18 @@ static void SetSysClock(void)
 
   if (HSEStatus == (uint32_t)0x01)
   {
-    /* Select regulator voltage output Scale 2 mode, System frequency up to 144 MHz */
+    /* Select regulator voltage output Scale 1 mode, System frequency up to 168 MHz */
     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
-    PWR->CR &= (uint32_t)~(PWR_CR_VOS);
+    PWR->CR |= PWR_CR_VOS;
 
-    /* HCLK = SYSCLK / 1*/
-    RCC->CFGR |= RCC_CFGR_HPRE_DIV1;
+    /* HCLK = SYSCLK / 4*/
+    RCC->CFGR |= RCC_CFGR_HPRE_DIV4;
       
-    /* PCLK2 = HCLK / 2*/
-    RCC->CFGR |= RCC_CFGR_PPRE2_DIV2;
+    /* PCLK2 = HCLK / 1*/
+    RCC->CFGR |= RCC_CFGR_PPRE2_DIV1;
     
-    /* PCLK1 = HCLK / 4*/
-    RCC->CFGR |= RCC_CFGR_PPRE1_DIV4;
+    /* PCLK1 = HCLK / 1*/
+    RCC->CFGR |= RCC_CFGR_PPRE1_DIV1;
 
     /* Configure the main PLL */
     RCC->PLLCFGR = PLL_M | (PLL_N << 6) | (((PLL_P >> 1) -1) << 16) |
@@ -398,7 +403,7 @@ static void SetSysClock(void)
     }
    
     /* Configure Flash prefetch, Instruction cache, Data cache and wait state */
-    FLASH->ACR = FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_2WS;
+    FLASH->ACR = FLASH_ACR_ICEN |FLASH_ACR_DCEN |FLASH_ACR_LATENCY_0WS;
 
     /* Select the main PLL as system clock source */
     RCC->CFGR &= (uint32_t)((uint32_t)~(RCC_CFGR_SW));

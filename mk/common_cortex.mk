@@ -60,7 +60,7 @@ $(info MCTYPE is $(MCTYPE) )
 MCBASE := $(shell echo "$(MCTYPE)" | head -c 7  )
 $(info MCBASE is $(MCBASE) )
 
-ALLFLAGS  += -D$(MCTYPE) -D$(MCBASE)
+ALLFLAGS  += -D$(MCTYPE) -D$(MCBASE) -DMCTYPE=$(MCTYPE) -DMCBASE=$(MCBASE)
 
 ifeq "$(MCBASE)" "STM32F0"
   ARCHFLAGS = -mthumb -mcpu=cortex-m0 -mfix-cortex-m3-ldrd
@@ -140,7 +140,7 @@ ifeq "$(USE_USB_DEFAULT_CDC)" "y"
   SRCS += usb_dcd_int.c
 endif
 
-vpath %.c   $(SRCPATHS)
+vpath %.c   $(SRCPATHS) $(OXSRC)/startup
 vpath %.cpp $(SRCPATHS)
 vpath %.s   $(OXSRC)/startup $(STMSRC)
 vpath %.o   $(OBJDIR)

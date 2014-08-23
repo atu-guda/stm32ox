@@ -1,6 +1,7 @@
 #ifndef _OX_BASE_H
 #define _OX_BASE_H
 
+
 #if defined (STM32F1)
   #include "stm32f10x_conf.h"
 #elif defined (STM32F2)
@@ -13,6 +14,9 @@
   #error "Unsupported MCU"
 #endif
 
+#if REQ_MCBASE != MCBASE
+  #error "Required and give MCBASE is not equal"
+#endif
 
 #define UNUSED __attribute__((unused))
 
@@ -51,9 +55,31 @@ void taskYieldFun(void);
 
 // timings for bad loop delays TODO: for other too
 // for 72MHz
-#define T_MKS_MUL    8
-#define T_MS_MUL  7979
-#define T_S_MUL   10261378
+#if REQ_SYSCLK_FREQ == 24
+  #define T_MKS_MUL    2
+  #define T_MS_MUL  2660
+  #define T_S_MUL   3420459
+#elif REQ_SYSCLK_FREQ == 36
+  #define T_MKS_MUL    4
+  #define T_MS_MUL  3990
+  #define T_S_MUL   5130689
+#elif REQ_SYSCLK_FREQ == 48
+  #define T_MKS_MUL    5
+  #define T_MS_MUL  5319
+  #define T_S_MUL   6840918
+#elif REQ_SYSCLK_FREQ == 56
+  #define T_MKS_MUL    8
+  #define T_MS_MUL  7979
+  #define T_S_MUL   10261378
+#elif REQ_SYSCLK_FREQ == 72
+  #define T_MKS_MUL    8
+  #define T_MS_MUL  7979
+  #define T_S_MUL   10261378
+#elif REQ_SYSCLK_FREQ == 168
+  #define T_MKS_MUL 32
+  #define T_MS_MUL  33845
+  #define T_S_MUL   33845000
+#endif
 
 // local board functions
 void die4led( uint16_t n );

@@ -1,4 +1,3 @@
-#include <stm32f4xx.h>
 #include <ox_gpio.h>
 #include <board_stm32f407_atu_x2.h>
 

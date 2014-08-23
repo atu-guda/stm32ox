@@ -3,6 +3,10 @@
 #ifndef __STM32F4XX_CONF_H
 #define __STM32F4XX_CONF_H
 
+// atu: for local config
+#define REQ_MCBASE      STM32F4
+#define REQ_SYSCLK_FREQ 168
+
 // Uncomment/Comment the line below to enable/disable peripheral header file inclusion
 // #include <stm32f4xx_adc.h>
 // #include <stm32f4xx_can.h>
