@@ -1,4 +1,3 @@
-#include "stm32f10x_conf.h"
 #include <errno.h>
 
 #ifdef USE_FREERTOS

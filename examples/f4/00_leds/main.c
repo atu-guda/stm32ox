@@ -17,8 +17,8 @@ void _exit( int rc UNUSED )
 {
 }
 
-#define TPORT                GPIOE
-#define TRCC  RCC_AHB1Periph_GPIOE
+#define TPORT                GPIOD
+#define TRCC  RCC_AHB1Periph_GPIOD
 
 int main(void)
 {

@@ -1,24 +1,28 @@
 #ifndef _OX_GPIO_H
 #define _OX_GPIO_H
 
+#include <ox_dev.h>
 
 #if defined STM32F1
- #include <stm32f10x.h>
  #include <stm32f10x_gpio.h>
-#elif defined STMF2
- #include <stm32f20x.h>
- #include <stm32f20x_gpio.h>
-#elif defined STMF3
- #include <stm32f30x.h>
+ #define SET_BIT_REG   BSRR
+ #define RESET_BIT_REG BRR
+#elif defined STM32F2
+ #include <stm32f2xx_gpio.h>
+ #define SET_BIT_REG   BSRRL
+ #define RESET_BIT_REG BSRRH
+#elif defined STM32F3
  #include <stm32f30x_gpio.h>
-#elif defined STMF4
- #include <stm32f40x.h>
- #include <stm32f40x_gpio.h>
+ #define SET_BIT_REG   BSRR
+ #define RESET_BIT_REG BRR
+#elif defined STM32F4
+ #include <stm32f4xx_gpio.h>
+ #define SET_BIT_REG   BSRRL
+ #define RESET_BIT_REG BSRRH
 #else
  #error "Undefined MC type"
 #endif // STM32Fxxx
 
-#include <ox_dev.h>
 
 
 struct GPIO_Info {
@@ -55,11 +59,11 @@ class PinsOut
    }
    void set( uint16_t v )   // get given to '1' (OR)
    {
-     gpio->BSRR = mv( v );
+     gpio->SET_BIT_REG = mv( v );
    }
    void reset( uint16_t v ) // AND~
    {
-     gpio->BRR = mv( v );
+     gpio->RESET_BIT_REG = mv( v );
    }
    void toggle( uint16_t v ) // XOR
    {

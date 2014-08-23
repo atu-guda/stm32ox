@@ -1,6 +1,19 @@
 #ifndef _OX_BASE_H
 #define _OX_BASE_H
 
+#if defined (STM32F1)
+  #include "stm32f10x_conf.h"
+#elif defined (STM32F2)
+  #include "stm32f2xx_conf.h"
+#elif defined (STM32F3)
+  #include "stm32f30x_conf.h"
+#elif defined (STM32F4)
+  #include "stm32f4xx_conf.h"
+#else
+  #error "Unsupported MCU"
+#endif
+
+
 #define UNUSED __attribute__((unused))
 
 #ifdef __cplusplus
