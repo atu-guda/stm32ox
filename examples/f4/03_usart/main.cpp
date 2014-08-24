@@ -12,18 +12,17 @@ const int def_stksz = 2 * configMINIMAL_STACK_SIZE;
 extern "C" {
 
 void task_leds( void *prm UNUSED );
+void task_string_send( void *prm UNUSED );
 
 }
 
 Usart us2( &USART2Conf1, &UsartModeAsync, 115200 );
+char global_cr = ' ';
+void on_received_char( char c );
 
 int main(void)
 {
   leds.initHW();
-  us2.initHW();
-
-  us2.init();
-  us2.enable();
 
   NVIC_SetPriorityGrouping( NVIC_PriorityGroup_4 );
 
@@ -32,6 +31,16 @@ int main(void)
   leds.reset( 0x0F );  delay_bad_ms( 200 );
 
   xTaskCreate( task_leds, "leds", 2*def_stksz, 0, 1, 0 );
+  xTaskCreate( task_usart2_send, "send", 2*def_stksz, 0, 1, 0 );
+  xTaskCreate( task_usart2_recv, "recv", 2*def_stksz, 0, 1, 0 );
+  xTaskCreate( task_string_send, "ss",     def_stksz, 0, 1, 0 );
+
+  us2.initIRQ( configKERNEL_INTERRUPT_PRIORITY, 0 );
+  us2.initHW();
+  us2.init();
+  us2.itConfig( USART_IT_RXNE, ENABLE );
+  us2.setOnRecv( on_received_char );
+  us2.enable();
 
   vTaskStartScheduler();
   die4led( 0xFF );
@@ -41,33 +50,37 @@ int main(void)
 
 void task_leds( void *prm UNUSED )
 {
-  char s[] = "U2< ; > ";
-  char se[] = " \r\n";
-  char sts[10], crs[10];
-  uint8_t i = ' ', ic = ' ';
-  uint16_t st, cr;
   while(1) {
-    st = us2.getSR();
-    cr = us2.getCR1();
-    s[3] = i;
-    if( st & USART_FLAG_RXNE ) {
-      ic = us2.recvRaw();
-      s[5] = ic;
-    }
-    word2hex( st, sts );
-    word2hex( cr, crs );
     leds.toggle( BIT1 );
-    us2.sendStrLoop( s );
-    us2.sendStrLoop( sts );
-    us2.sendStrLoop( "  " );
-    us2.sendStrLoop( crs );
-    us2.sendStrLoop( se );
     delay_ms( 500 );
+  }
+  vTaskDelete(0);
+}
+
+void task_string_send( void *prm UNUSED )
+{
+  char s[] = "U2< ; > \r\n";
+  uint8_t i = ' ';
+  while(1) {
+    s[3] = i;
+    s[5] = global_cr;
+    us2.sendStr( s );
+    delay_ms( 2000 );
     ++i;
     if( i > 127 ) {
-      i = ' ';
+       i = ' ';
     }
   }
+  vTaskDelete(0);
+}
+
+STD_USART2_SEND_TASK( us2 );
+STD_USART2_RECV_TASK( us2 );
+STD_USART2_IRQ( us2 );
+
+void on_received_char( char c )
+{
+  global_cr = c;
 }
 
 void _exit( int rc UNUSED )

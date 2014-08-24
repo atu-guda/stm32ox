@@ -2,8 +2,8 @@
 #include <ox_usart.h>
 
 // for debug
-#include <ox_debug1.h>
-#include <ox_gpio.h>
+// #include <ox_debug1.h>
+// #include <ox_gpio.h>
 
 PinModeNum  UsartModeAsync_pins[] {
   pinMode_USART_TX, // TX
@@ -36,9 +36,9 @@ DevMode UsartModeHWFC
 
 PinModeNum  UsartModeSync_pins[] {
   pinMode_USART_TX, // TX
-  pinMode_USART_RX,   // RX
-  pinMode_NONE,  // no CTS
-  pinMode_NONE,  // no RTS
+  pinMode_USART_RX, // RX
+  pinMode_NONE,     // no CTS
+  pinMode_NONE,     // no RTS
   pinMode_USART_TX  // CK
 };
 
@@ -61,12 +61,16 @@ void Usart::init()
   // CR1
   // CR3
   // BRR
+  xQueueReset( ibuf );
+  xQueueReset( obuf );
 }
 
 void Usart::deInit()
 {
   // TODO: rewrite by hand
   USART_DeInit( usart );
+  xQueueReset( ibuf );
+  xQueueReset( obuf );
 }
 
 void Usart::initHW()
@@ -116,10 +120,14 @@ int Usart::sendBlockLoop( const char* d, int n )
     return 0;
   }
 
-  int ns = 0;
+  int ns = 0, nl = 0;
   for( ; *d; ++d ) {
     while( checkFlag( USART_FLAG_TXE ) == RESET ) {
-      taskYieldFun(); // TODO: limit
+      taskYieldFun();
+      ++nl;
+      if( nl >= wait_tx ) {
+        return ns;
+      }
     }
     sendRaw( *d );
     ++ns;
@@ -143,101 +151,99 @@ int Usart::sendBlock( const char* d, int n )
     return 0;
   }
 
-  int ns = 0;
+  int ns = 0, sst;
 
-  // LOCK
-
-  for( ; *d; ++d ) { // TODO: FIX to real
-    int next_s = ( obuf_s + 1 ) % OBUF_SZ;
-    if( next_s == obuf_e ) { // overrun
-      break;
+  for( int i=0; i<n; ++i ) { // TODO: FIX to real
+    sst = xQueueSend( obuf, &(d[i]), wait_tx );
+    if( sst != pdTRUE ) {
+      break; // TODO: err status
     }
-    obuf[obuf_s] = *d;
-    obuf_s = next_s;
     ++ns;
   }
 
-  // UNLOCK
-  // inform: start to send
   return ns;
 }
 
 void Usart::handleIRQ()
 {
-  char c;
+  char cr, cs;
   int n_work = 0;
+  BaseType_t wake = pdFALSE, qrec;
   uint32_t status = usart->SR;
-  leds.toggle( BIT3 );
+  // leds.toggle( BIT3 ); // DEBUG
 
   if( status & USART_FLAG_RXNE ) { // char recived
     ++n_work;
-    c = recvRaw();
-    leds.set( BIT2 );
+    cr = recvRaw();
+    // leds.set( BIT2 );
     if( status & ( USART_FLAG_ORE | USART_FLAG_FE | USART_FLAG_LBD ) ) {
       sr_err = status;
     } else {
-      int next_s = ( ibuf_s + 1 ) % IBUF_SZ; // no lock: int irq
-      if( next_s != ibuf_e ) {
-        ibuf[ibuf_s] = c;
-        ibuf_s = next_s;
-        // TODO: notify
-      }
+      xQueueSendFromISR( ibuf, &cr, &wake  );
     }
-    leds.reset( BIT2 );
-    // leds_toggle( BIT2 ); // debug
-    // xQueueSendFromISR( qh_USART_recv, &c, &wake  );
+    // leds.reset( BIT2 );
   }
 
   // TXE is keeps on after transmit
   if( on_transmit  &&  (status & USART_FLAG_TXE) ) {
-    leds.set( BIT1 );
+    // leds.set( BIT1 );
     ++n_work;
-    obuf_e = ( obuf_e + 1 ) % OBUF_SZ;
-    if( obuf_e != obuf_s ) {
-      sendRaw( obuf[obuf_e] );
+    qrec = xQueueReceiveFromISR( obuf, &cs, &wake );
+    if( qrec == pdTRUE ) {
+      sendRaw( cs );
     } else {
       itConfig( USART_IT_TXE, DISABLE );
       on_transmit = false;
     }
-    leds.reset( BIT1 );
+    // leds.reset( BIT1 );
   }
 
-  if( status & USART_FLAG_TC ) {
-    ++n_work;
-    // leds_toggle( BIT0 ); // debug// debug TX
-    usart->SR &= ~USART_FLAG_TC;
-    // xSemaphoreGiveFromISR( sh_USART_send, &wake );
-  }
+  // if( status & USART_FLAG_TC ) {
+  //   ++n_work;
+  //   // leds_toggle( BIT0 ); // debug// debug TX
+  //   usart->SR &= ~USART_FLAG_TC;
+  //   // xSemaphoreGiveFromISR( sh_USART_send, &wake );
+  // }
 
   if( n_work == 0 ) { // unhandled
     // leds_toggle( BIT1 );
   }
 
+  portEND_SWITCHING_ISR( wake );
+
 }
 
-void Usart::taskIO()
+int  Usart::getChar( int wait_tick )
 {
-  // LOCK
-  while( ibuf_s != ibuf_e ) {
-    int next_e = ( ibuf_e + 1 ) % IBUF_SZ;
-    if( on_recv != nullptr ) {
-      on_recv( ibuf[ibuf_e] );
-    }
-    ibuf_e = next_e;
-  }
-  // UNLOCK
+  char c;
+  BaseType_t r = xQueueReceive( ibuf, &c, wait_tick );
+  return ( r == pdTRUE ) ? c : -1;
+}
 
+
+void Usart::task_send()
+{
   if( on_transmit ) { // handle by IRQ
     return;
   }
 
-  // LOCK ?
-  if( obuf_s != obuf_e ) {
+  char ct;
+  BaseType_t ts = xQueueReceive( obuf, &ct, wait_tx );
+  if( ts == pdTRUE ) {
     on_transmit = true;
-    sendRaw( obuf[obuf_e] );
+    sendRaw( ct );
     itConfig( USART_IT_TXE, ENABLE );
   }
-  // UNLOCK
 
+}
 
+void Usart::task_recv()
+{
+  char cr;
+  BaseType_t ts = xQueueReceive( ibuf, &cr, wait_rx );
+  if( ts == pdTRUE ) {
+    if( on_recv != nullptr ) {
+      on_recv( cr );
+    } // else simply eat char - if not required - dont use this task
+  }
 }
