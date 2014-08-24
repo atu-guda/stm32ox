@@ -1,7 +1,7 @@
 #ifndef _OX_CONSOLE_H
 #define _OX_CONSOLE_H
 
-#include <ox_base.h>
+#include <ox_dev.h>
 
 #ifdef __cplusplus
  extern "C" {

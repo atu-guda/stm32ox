@@ -1,4 +1,3 @@
-#include "stm32f10x_conf.h"
 #include <stdlib.h>
 #include <errno.h>
 
@@ -137,9 +136,10 @@ int cmd_info( int argc UNUSED, const char * const * argv UNUSED )
   pr( "  PCLK2: " ); pr_d( clst.PCLK2_Frequency );
   pr( "  HSE_VALUE: " ); pr_d( HSE_VALUE );
   pr( NL );
-  pr( "RCC_APB2ENR: " ); pr_h( RCC->APB2ENR );
-  pr( "   RCC_APB1ENR: " ); pr_h( RCC->APB1ENR );
-  pr( "   RCC_AHBENR: "  ); pr_h( RCC->AHBENR );
+  for( int i=0; i<RCC_Bus::RCC_NBUS; ++i ) {
+    pr( "RCC_enr" ); pr_d( i ); pr( ": " );
+    pr_h( *(RCC_enr[i]) ); pr( NL );
+  }
   pr( NL );
   pr_sdx( errno );
   pr_sdx( SystemCoreClock );

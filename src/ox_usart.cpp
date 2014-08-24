@@ -160,6 +160,9 @@ int Usart::sendBlock( const char* d, int n )
     }
     ++ns;
   }
+  if( ns ) {
+    taskYieldFun();
+  }
 
   return ns;
 }

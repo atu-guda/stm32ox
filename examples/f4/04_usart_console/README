@@ -1,0 +1,5 @@
+Using  USART as console via microrl.
+
+Use USART2: A2 = TX, A3 = RX.
+On my host used small FT232RL board to connect with.
+
