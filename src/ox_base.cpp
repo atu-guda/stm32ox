@@ -20,7 +20,8 @@ GPIO_InitTypeDef GPIO_Modes[pinMode_MAX] = {
   { 0, GPIO_DFL_Speed, GPIO_Mode_Out_PP },      // Out_PP
   { 0, GPIO_DFL_Speed, GPIO_Mode_Out_OD },      // Out_OD
   { 0, GPIO_DFL_Speed, GPIO_Mode_AF_PP },       // AF_PP
-  { 0, GPIO_DFL_Speed, GPIO_Mode_AF_OD }        // AF_OD
+  { 0, GPIO_DFL_Speed, GPIO_Mode_AF_OD },       // AF_OD
+  { 0, GPIO_DFL_Speed, GPIO_Mode_IPU }          // AFIU = IPU for f1
 };
 #else // 2.3.4 is similar?
 
@@ -33,7 +34,8 @@ GPIO_InitTypeDef GPIO_Modes[pinMode_MAX] = {
   { 0, GPIO_Mode_OUT, GPIO_DFL_Speed, GPIO_OType_PP, GPIO_PuPd_NOPULL  }, // Out_PP
   { 0, GPIO_Mode_OUT, GPIO_DFL_Speed, GPIO_OType_OD, GPIO_PuPd_NOPULL  }, // Out_OD
   { 0, GPIO_Mode_AF,  GPIO_DFL_Speed, GPIO_OType_PP, GPIO_PuPd_NOPULL  }, // AF_PP
-  { 0, GPIO_Mode_AF,  GPIO_DFL_Speed, GPIO_OType_OD, GPIO_PuPd_NOPULL  }  // AF_OD
+  { 0, GPIO_Mode_AF,  GPIO_DFL_Speed, GPIO_OType_OD, GPIO_PuPd_NOPULL  }, // AF_OD
+  { 0, GPIO_Mode_AF,  GPIO_DFL_Speed, GPIO_OType_PP, GPIO_PuPd_UP      }  // AFIU
 };
 
 #endif

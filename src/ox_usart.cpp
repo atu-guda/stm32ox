@@ -6,8 +6,8 @@
 #include <ox_gpio.h>
 
 PinModeNum  UsartModeAsync_pins[] {
-  pinMode_AF_PP, // TX
-  pinMode_IPU    // RX
+  pinMode_USART_TX, // TX
+  pinMode_USART_RX  // RX
   // no CTS, no RTS, no CK
 };
 
@@ -18,10 +18,10 @@ DevMode UsartModeAsync
 };
 
 PinModeNum  UsartModeHWFC_pins[] {
-  pinMode_AF_PP, // TX
-  pinMode_IPU,   // RX
-  pinMode_IPU,   // CTS
-  pinMode_AF_PP  // RTS
+  pinMode_USART_TX, // TX
+  pinMode_USART_RX, // RX
+  pinMode_USART_RX, // CTS
+  pinMode_USART_TX  // RTS
   // no CK
 };
 
@@ -35,11 +35,11 @@ DevMode UsartModeHWFC
 
 
 PinModeNum  UsartModeSync_pins[] {
-  pinMode_AF_PP, // TX
-  pinMode_IPU,   // RX
+  pinMode_USART_TX, // TX
+  pinMode_USART_RX,   // RX
   pinMode_NONE,  // no CTS
   pinMode_NONE,  // no RTS
-  pinMode_AF_PP  // CK
+  pinMode_USART_TX  // CK
 };
 
 DevMode UsartModeSync

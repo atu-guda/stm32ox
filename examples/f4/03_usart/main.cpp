@@ -41,17 +41,27 @@ int main(void)
 
 void task_leds( void *prm UNUSED )
 {
-  char s[] = "U2< ,  >\r\n";
-  char rs[4];
-  uint8_t i = ' ';
-  char r = '.';
+  char s[] = "U2< ; > ";
+  char se[] = " \r\n";
+  char sts[10], crs[10];
+  uint8_t i = ' ', ic = ' ';
+  uint16_t st, cr;
   while(1) {
+    st = us2.getSR();
+    cr = us2.getCR1();
     s[3] = i;
-    r = us2.recvRaw();
-    char2hex( r, rs );
-    s[5] = rs[0]; s[6] = rs[1];
+    if( st & USART_FLAG_RXNE ) {
+      ic = us2.recvRaw();
+      s[5] = ic;
+    }
+    word2hex( st, sts );
+    word2hex( cr, crs );
     leds.toggle( BIT1 );
     us2.sendStrLoop( s );
+    us2.sendStrLoop( sts );
+    us2.sendStrLoop( "  " );
+    us2.sendStrLoop( crs );
+    us2.sendStrLoop( se );
     delay_ms( 500 );
     ++i;
     if( i > 127 ) {

@@ -111,12 +111,13 @@ enum PinModeNum {
   pinMode_Out_OD,
   pinMode_AF_PP,
   pinMode_AF_OD,
+  pinMode_AFIU,
   pinMode_MAX, // size
   // aliases (default, may be other)
   pinMode_TIM_Capt   = pinMode_INF,
   pinMode_TIM_Out    = pinMode_Out_PP,
   pinMode_USART_TX   = pinMode_AF_PP,
-  pinMode_USART_RX   = pinMode_IPU,
+  pinMode_USART_RX   = pinMode_AFIU,
   pinMode_SPI_SCK    = pinMode_AF_PP,
   pinMode_SPI_MOSI   = pinMode_AF_PP,
   pinMode_SPI_MISO   = pinMode_INF,
