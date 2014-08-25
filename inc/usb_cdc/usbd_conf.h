@@ -4,11 +4,9 @@
 #ifndef __USBD_CONF__H__
 #define __USBD_CONF__H__
 
-// atu:
-#include "stm32f10x_conf.h"
 
 /* Includes ------------------------------------------------------------------*/
-#include "usb_conf.h"
+#include <usb_conf.h>
 
 
 #define USBD_CFG_MAX_NUM                1

@@ -61,6 +61,5 @@ int delay_bad()
   return k;
 }
 
-    // GPIO_ResetBits( GPIOC, 0x000F );
-    // GPIO_SetBits( GPIOC, i );
-    //
+// vim: path=.,/usr/share/stm32lib/inc/,/usr/arm-none-eabi/include,ox/inc
+

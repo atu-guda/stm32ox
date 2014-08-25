@@ -87,3 +87,6 @@ void _exit( int rc UNUSED )
 {
 }
 
+
+// vim: path=.,/usr/share/stm32lib/inc/,/usr/arm-none-eabi/include,ox/inc
+

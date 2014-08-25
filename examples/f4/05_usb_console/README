@@ -1,0 +1,8 @@
+Using  USB CDC as console via microrl.
+
+Used USB FS:
+A9  = Vbus
+A10 = Id
+A11 = D-
+A12 = D+
+

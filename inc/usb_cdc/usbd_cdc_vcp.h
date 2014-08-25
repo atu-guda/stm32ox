@@ -5,12 +5,23 @@
 #ifndef __USBD_CDC_VCP_H
 #define __USBD_CDC_VCP_H
 
-#include "stm32f10x.h"
+// #if defined STM32F1
+//  #include <stm32f10x.h>
+// #elif defined STM32F2
+//  #include <stm32f2xx.h>
+// #elif defined STM32F3
+//  #include <stm32f30x.h>
+// #elif defined STM32F4
+//  #include <stm32f4xx.h>
+// #else
+//  #error "Unsupported MC type"
+// #endif // STM32Fxxx
 
 
 #include <usbd_cdc_core.h>
-#include "usbd_conf.h"
+#include <usbd_conf.h>
 
+extern USBD_Usr_cb_TypeDef USR_cb;
 
 /* Exported typef ------------------------------------------------------------*/
 /* The following structures groups all needed parameters to be configured for the

@@ -2,7 +2,10 @@
 #include <stdlib.h>
 
 #include <ox_gpio.h>
-#include <ox_usart.h>
+#include <ox_usbotgfs.h>
+#include <usbd_desc.h>
+#include <usbd_cdc_vcp.h>
+
 #include <ox_console.h>
 #include <ox_debug1.h>
 #include <board_stm32f407_atu_x2.h>
@@ -53,7 +56,9 @@ void task_leds( void *prm UNUSED );
 
 }
 
-Usart us2( &USART2Conf1, &UsartModeAsync, 115200 );
+UsbOtgFs usbotg( &UsbOtgFsConf1, &UsbOtgFsModeVbus );
+UsbOtgFs *usbfs_main = &usbotg;
+
 void on_received_char( char c );
 
 int main(void)
@@ -66,18 +71,14 @@ int main(void)
   leds.write( 0x0A );  delay_bad_ms( 200 );
   leds.reset( 0x0F );  delay_bad_ms( 200 );
 
+  usbotg.setOnRecv( on_received_char );
+
   //           fun         name    stack_sz   prm prty *handle
   xTaskCreate( task_leds, "leds", 2*def_stksz, 0, 1, 0 );
-  xTaskCreate( task_usart2_send, "send", 2*def_stksz, 0, 2, 0 );
-  xTaskCreate( task_usart2_recv, "recv", 2*def_stksz, 0, 2, 0 );
+  xTaskCreate( task_usbotgfscdc_recv, "urecv", 2*def_stksz, 0, 2, 0 );
   xTaskCreate( task_main, "main", 2 * def_stksz, 0, 1, 0 );
 
-  us2.initIRQ( configKERNEL_INTERRUPT_PRIORITY, 0 );
-  us2.initHW();
-  us2.init();
-  us2.itConfig( USART_IT_RXNE, ENABLE );
-  us2.setOnRecv( on_received_char );
-  us2.enable();
+  // usbotg.initHW(); // not req - by callback USB_OTG_BSP_Init
 
   vTaskStartScheduler();
   die4led( 0xFF );
@@ -89,6 +90,7 @@ void task_main( void *prm UNUSED ) // TMAIN
 {
   uint32_t nl = 0;
 
+  usbotg.init( &USR_desc, &USBD_CDC_cb, &USR_cb );
   // i2c_d.init();
 
   pr( "***** Main loop: ****** " NL );
@@ -121,10 +123,8 @@ void task_leds( void *prm UNUSED )
 }
 
 
-STD_USART2_SEND_TASK( us2 );
-STD_USART2_RECV_TASK( us2 );
-STD_USART2_IRQ( us2 );
-
+STD_OTG_FS_IRQ( usbotg );
+STD_OTG_FS_RECV_TASK( usbotg );
 
 int pr( const char *s )
 {
@@ -137,8 +137,8 @@ int pr( const char *s )
 
 int prl( const char *s, int l )
 {
-  // VCP_DataTx( (const uint8_t*)(s), l );
-  us2.sendBlock( s, l );
+  // us2.sendBlock( s, l );
+  usbotg.sendBlock( s, l );
   idle_flag = 1;
   return 0;
 }
@@ -194,20 +194,19 @@ int cmd_test0( int argc, const char * const * argv )
     a1 = strtol( argv[1], 0, 0 );
   }
   pr( NL "Test0: a1= " ); pr_d( a1 ); pr( NL );
-  // log_add( "Test0 " );
-  //
-  uint32_t cr1 = us2.getCR1();
-  pr_shx( cr1 );
-  uint32_t sr = us2.getSR();
-  pr_shx( sr );
-  delay_ms( 100 );
 
-  us2.sendStr( "USART 2 String " );
-  for( int i=0; i< a1; ++i ) {
-    us2.sendStr( " 12345" );
-    us2.sendStr( "67890 ***" NL );
-  }
-  pr( NL );
+  usbotg.sendStr( "USB" NL );
+  delay_ms( 10 );
+  pr( NL "sendstr. "  NL );
+
+  // log_add( "Test0 " );
+
+  // us2.sendStr( "USART 2 String " );
+  // for( int i=0; i< a1; ++i ) {
+  //   us2.sendStr( " 12345" );
+  //   us2.sendStr( "67890 ***" NL );
+  // }
+  // pr( NL );
 
   delay_ms( 10 );
 
@@ -215,6 +214,4 @@ int cmd_test0( int argc, const char * const * argv )
   return 0;
 }
 
-
-// vim: path=.,/usr/share/stm32lib/inc/,/usr/arm-none-eabi/include,ox/inc
-
+// vim: path=.,/usr/share/stm32lib/inc/,/usr/arm-none-eabi/include,ox/inc,ox/inc/usb_cdc

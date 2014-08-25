@@ -6,7 +6,7 @@
 #ifndef __USB_DESC_H
 #define __USB_DESC_H
 
-#include "usbd_def.h"
+#include <usbd_def.h>
 
 #define USB_DEVICE_DESCRIPTOR_TYPE              0x01
 #define USB_CONFIGURATION_DESCRIPTOR_TYPE       0x02

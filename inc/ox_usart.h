@@ -109,8 +109,8 @@ class Usart : public DevBase {
    void (*on_recv)( char c ) = nullptr;
    uint16_t sr_err = 0;
    bool on_transmit = false;
-   QueueHandle_t ibuf = nullptr;
-   QueueHandle_t obuf = nullptr;
+   QueueHandle_t ibuf;
+   QueueHandle_t obuf;
    int wait_tx = 500; // TODO: adjust
    int wait_rx = 500;
 };

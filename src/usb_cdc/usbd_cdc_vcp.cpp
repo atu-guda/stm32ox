@@ -4,15 +4,11 @@
   * @brief   Generic media access Layer.
   */
 
-#include "stm32f10x_conf.h"
+#include <usbd_cdc_vcp.h>
+#include <usb_conf.h>
 
+#include <ox_usbotgfs.h>
 
-#include "usbd_cdc_vcp.h"
-#include "usb_conf.h"
-
-#include <ox_base.h>
-
-#include <FreeRTOS.h>
 #include <task.h>
 #include <queue.h>
 
@@ -178,7 +174,6 @@ uint16_t VCP_DataTx( uint8_t* Buf, uint32_t Len )
   return USBD_OK;
 }
 
-extern xQueueHandle qh_USB_recv;
 /**
   * @brief  VCP_DataRx
   *         Data received over USB OUT endpoint are sent over CDC interface
@@ -196,16 +191,9 @@ extern xQueueHandle qh_USB_recv;
   */
 static uint16_t VCP_DataRx( uint8_t* Buf, uint32_t Len )
 {
-  portBASE_TYPE wake = pdFALSE;
-  for( uint32_t i=0; i<Len; ++i ) {
-    xQueueSendFromISR( qh_USB_recv, Buf+i, &wake  );
+  if( usbfs_main ) {
+    usbfs_main->recvCallback( Buf, Len );
   }
-
-  // leds_off( BIT6 );
-  if( wake != pdFALSE ) {
-    taskYIELD();
-  }
-
   return USBD_OK;
 }
 
@@ -218,7 +206,6 @@ static uint16_t VCP_DataRx( uint8_t* Buf, uint32_t Len )
   */
 //static uint16_t VCP_COMConfig(uint8_t Conf)
 //{
-// // atu: more here........
   // return USBD_OK;
 //}
 

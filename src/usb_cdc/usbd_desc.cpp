@@ -3,13 +3,11 @@
   * @brief   This file provides the USBD descriptors and string formating method.
   */
 
-#include "stm32f10x_conf.h"
-
-#include "usbd_core.h"
-#include "usbd_desc.h"
-#include "usbd_req.h"
-#include "usbd_conf.h"
-#include "usb_regs.h"
+#include <usbd_core.h>
+#include <usbd_desc.h>
+#include <usbd_req.h>
+#include <usbd_conf.h>
+#include <usb_regs.h>
 
 #include <ox_base.h>
 

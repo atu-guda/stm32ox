@@ -118,18 +118,18 @@ ifeq "$(USE_MICRORL)" "y"
 endif
 
 ifeq "$(USE_USB_OTG)" "y"
-  SRCPATHS += $(STMSRC)/usb_otg usb
-  ALLFLAGS += -I$(STMINC)/usb_otg -Iusb
+  SRCPATHS += $(STMSRC)/usb_otg
+  ALLFLAGS += -I$(STMINC)/usb_otg
   ALLFLAGS += -DUSE_USB_OTG_FS=1 -DUSE_EMBEDDED_PHY=1
 endif
 
 ifeq "$(USE_USB_DEFAULT_CDC)" "y"
   SRCPATHS += $(OXSRC)/usb_cdc
   ALLFLAGS += -I$(OXINC)/usb_cdc
-  SRCS += usb_bsp.c
-  SRCS += usbd_cdc_vcp.c
-  SRCS += usbd_desc.c
-  SRCS += usbd_usr.c
+  SRCS += usb_bsp.cpp
+  SRCS += usbd_cdc_vcp.cpp
+  SRCS += usbd_desc.cpp
+  SRCS += usbd_usr.cpp
   # USB: lib:
   SRCS += usb_dcd.c
   SRCS += usb_core.c

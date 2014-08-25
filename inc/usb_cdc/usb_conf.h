@@ -2,10 +2,19 @@
 #ifndef __USB_CONF__H__
 #define __USB_CONF__H__
 
-// atu:
-#include <stm32f10x_misc.h> // atu: my prefix
+#if defined STM32F1
+ #include <stm32f10x_misc.h>
+#elif defined STM32F2
+ #include <stm32f2xx_misc.h>
+#elif defined STM32F3
+ #include <stm32f30x_misc.h>
+#elif defined STM32F4
+ #include <stm32f4xx_misc.h>
+#else
+ #error "Unsupported MC type"
+#endif // STM32Fxxx
 
-void OTG_FS_IRQHandler(void);
+// void OTG_FS_IRQHandler(void);
 
 /* USB Core and PHY interface configuration.
    Tip: To avoid modifying these defines each time you need to change the USB
