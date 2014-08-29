@@ -1,0 +1,12 @@
+Test common I2C actions: scan, read, write, read/write with aux address
+
+Used I2C1:
+SCL = B6 + 4.7k pullUp
+SDA = B7 + 4.7k pullUp
+
+Console: USB OTG FS:
+A9  = Vbus
+A10 = Id - unused
+A11 = D-
+A12 = D+
+

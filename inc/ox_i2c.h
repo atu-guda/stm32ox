@@ -1,12 +1,19 @@
 #ifndef _OX_I2C_H
 #define _OX_I2C_H
 
-// #ifdef STM32F1
-// #endif
+#if defined STM32F1
+ #include <stm32f10x_i2c.h>
+#elif defined STM32F2
+ #include <stm32f2xx_i2c.h>
+#elif defined STM32F3
+ #include <stm32f30x_i2c.h>
+#elif defined STM32F4
+ #include <stm32f4xx_i2c.h>
+#else
+ #error "Undefined MC type"
+#endif // STM32Fxxx
 
-#include <stm32f10x.h>
-#include <stm32f10x_gpio.h>
-#include <stm32f10x_i2c.h>
+// #include <stm32f10x_gpio.h>
 
 #include <ox_dev.h>
 
