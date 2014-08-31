@@ -55,18 +55,18 @@ class MPU6050 {
    void setDLP( DLP_BW dlp_bw ) { i2c.send_reg1( addr, mpu6050_reg_cfg,(uint8_t*)(&dlp_bw), 1 ); }
    void setAccScale( ACC_scale accs ) { i2c.send_reg1( addr, mpu6050_reg_cfg_acc,(uint8_t*)(&accs), 1 ); }
    void setGyroScale( Gyro_scale gyros ) { i2c.send_reg1( addr, mpu6050_reg_cfg_gyro,(uint8_t*)(&gyros), 1 ); }
-   uint16_t getReg( uint8_t reg ); // reg is 16-bit
-   void     getRegs( uint8_t reg1, uint8_t n, uint16_t *data );
-   uint16_t getAccX() { return getReg( mpu6050_reg_a_xh ); }
-   uint16_t getAccY() { return getReg( mpu6050_reg_a_yh ); }
-   uint16_t getAccZ() { return getReg( mpu6050_reg_a_zh ); }
-   void     getAccAll( uint16_t *acc ){ return getRegs( mpu6050_reg_a_xh, 3, acc ); }
-   uint16_t getGyroX() { return getReg( mpu6050_reg_g_xh ); }
-   uint16_t getGyroY() { return getReg( mpu6050_reg_g_yh ); }
-   uint16_t getGyroZ() { return getReg( mpu6050_reg_g_zh ); }
-   void     getGyroAll( uint16_t *gyro ){ return getRegs( mpu6050_reg_g_xh, 3, gyro ); }
-   uint16_t getTemp() { return getReg( mpu6050_reg_temph ); }
-   void     getAll( uint16_t *all_data ){ return getRegs( mpu6050_reg_a_xh, 8, all_data ); }
+   int16_t getReg( uint8_t reg ); // reg is 16-bit
+   void     getRegs( uint8_t reg1, uint8_t n, int16_t *data );
+   int16_t getAccX() { return getReg( mpu6050_reg_a_xh ); }
+   int16_t getAccY() { return getReg( mpu6050_reg_a_yh ); }
+   int16_t getAccZ() { return getReg( mpu6050_reg_a_zh ); }
+   void     getAccAll( int16_t *acc ){ return getRegs( mpu6050_reg_a_xh, 3, acc ); }
+   int16_t getGyroX() { return getReg( mpu6050_reg_g_xh ); }
+   int16_t getGyroY() { return getReg( mpu6050_reg_g_yh ); }
+   int16_t getGyroZ() { return getReg( mpu6050_reg_g_zh ); }
+   void     getGyroAll( int16_t *gyro ){ return getRegs( mpu6050_reg_g_xh, 3, gyro ); }
+   int16_t getTemp() { return getReg( mpu6050_reg_temph ); }
+   void     getAll( int16_t *all_data ){ return getRegs( mpu6050_reg_a_xh, 8, all_data ); }
   private:
    DevI2C &i2c;
    uint8_t addr;

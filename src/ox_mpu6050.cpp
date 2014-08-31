@@ -1,20 +1,20 @@
 #include <ox_mpu6050.h>
 
-uint16_t MPU6050::getReg( uint8_t reg )
+int16_t MPU6050::getReg( uint8_t reg )
 {
-  uint32_t v;
+  int32_t v;
   i2c.recv_reg1( addr, reg, (uint8_t*)(&v), 2 );
   v = __REV16( v ); // swap bytes in 16-bits
-  return (uint16_t)(v);
+  return (int16_t)(v);
 }
 
-void MPU6050::getRegs( uint8_t reg1, uint8_t n, uint16_t *data )
+void MPU6050::getRegs( uint8_t reg1, uint8_t n, int16_t *data )
 {
   i2c.recv_reg1( addr, reg1, (uint8_t*)(data), 2*n );
   for( uint8_t i=0; i<n; ++i ) { // swap
-    uint32_t v = data[i];
+    int32_t v = data[i];
     v = __REV16( v );
-    data[i] = (uint16_t)(v);
+    data[i] = (int16_t)(v);
   }
 }
 
