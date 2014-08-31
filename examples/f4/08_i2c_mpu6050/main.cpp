@@ -12,7 +12,7 @@
 #include <ox_debug_i2c.h>
 #include <board_stm32f407_atu_x2.h>
 
-#include <ox_bmp085.h>
+#include <ox_mpu6050.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
@@ -229,24 +229,22 @@ int cmd_test0( int argc, const char * const * argv )
   pr( " * I2C after init " NL );
   i2c_print_status( i2c_d );
 
-  BMP085 baro( i2c_d );
-  baro.readCalibrData();
-
+  MPU6050 accel( i2c_d );
+  int16_t adata[MPU6050::mpu6050_alldata_sz];
+  accel.setDLP( MPU6050::DLP_BW::bw_10 );
+  accel.init();
+  int tick_start = xTaskGetTickCount();
   for( int i=0; i<ncy; ++i ) {
-
-    baro.getAllCalc( 3 );
-    int t10 = baro.get_T10();
-    int p   = baro.get_P();
-    // int t_u = baro.get_T_uncons();
-    // int p_u = baro.get_P_uncons();
-    pr( "T= " ); pr_d( t10 ); pr( "  P= " ); pr_d( p ); pr( NL );
+    accel.getAll( adata );
+    for( int j=0; j<MPU6050::mpu6050_alldata_sz; ++j ) {
+      pr_d( (int)(adata[j]) ); pr( " " );
+    }
+    pr( NL );
     delay_ms( dly );
   }
-
-  // const int16_t *cal = baro.getCalibr();
-  // for( int i=0; i< BMP085::n_calibr_data; ++i ) {
-  //   pr_d( i ); pr( "  " ); pr_d( cal[i] ); pr(NL);
-  // }
+  int tick_stop = xTaskGetTickCount();
+  tick_stop -= tick_start;
+  pr_sdx( tick_stop );
 
 
   delay_ms( 10 );

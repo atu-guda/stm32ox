@@ -1,4 +1,4 @@
-Use MPU-6050 accel + gyro via I2C
+Use Use barometer BMP085 via I2C
 
 I2C1:
 SCL = B6 + 4.7k pullUp

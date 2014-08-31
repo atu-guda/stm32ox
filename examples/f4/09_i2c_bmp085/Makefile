@@ -1,4 +1,4 @@
-PROJ_NAME=08_i2c_mpu6050
+PROJ_NAME=bmp085
 MCTYPE = STM32F407
 
 LINK=$(CXX)
@@ -33,7 +33,7 @@ SRCS += ox_stm32f4xx_usbotgfscfg.cpp
 SRCS += ox_i2c.cpp
 SRCS += ox_debug_i2c.cpp
 SRCS += ox_stm32f4xx_i2ccfg.cpp
-SRCS += ox_mpu6050.cpp
+SRCS += ox_bmp085.cpp
 
 # stm32lib sources
 # SRCS += stm32f4xx_adc.c
