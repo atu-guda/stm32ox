@@ -29,9 +29,7 @@ SRCS += ox_gpio.cpp
 # SRCS += ox_usart.cpp
 # SRCS += ox_stm32f4xx_usartcfg.cpp
 SRCS += ox_usbotgfs.cpp
-SRCS += ox_usbotgfs.cpp
 SRCS += ox_stm32f4xx_usbotgfscfg.cpp
-#SRCS += ox_i2c.cpp
 
 # stm32lib sources
 # SRCS += stm32f4xx_adc.c
