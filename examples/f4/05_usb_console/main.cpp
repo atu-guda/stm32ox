@@ -195,6 +195,11 @@ int cmd_test0( int argc, const char * const * argv )
   }
   pr( NL "Test0: a1= " ); pr_d( a1 ); pr( NL );
 
+  int prty = uxTaskPriorityGet( 0 );
+  pr_sdx( prty );
+  const char *nm = pcTaskGetTaskName( 0 );
+  pr( "name: \"" ); pr( nm ); pr( "\"" NL );
+
   usbotg.sendStr( "USB" NL );
   delay_ms( 10 );
   pr( NL "sendstr. "  NL );
