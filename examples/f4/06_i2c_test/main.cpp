@@ -91,12 +91,15 @@ int main(void)
   leds.write( 0x0A );  delay_bad_ms( 200 );
   leds.reset( 0x0F );  delay_bad_ms( 200 );
 
+  MICRORL_INIT_QUEUE;
+
   usbotg.setOnRecv( on_received_char );
 
   //           fun         name    stack_sz   prm prty *handle
   xTaskCreate( task_leds, "leds", 2*def_stksz, 0, 1, 0 );
   xTaskCreate( task_usbotgfscdc_recv, "urecv", 2*def_stksz, 0, 2, 0 );
   xTaskCreate( task_main, "main", 2 * def_stksz, 0, 1, 0 );
+  xTaskCreate( task_microrl_cmd, "microrl_cmd", def_stksz, 0, 1, 0 );
 
   // usbotg.initHW(); // not req - by callback USB_OTG_BSP_Init
 
@@ -147,6 +150,8 @@ void task_leds( void *prm UNUSED )
 
 STD_OTG_FS_IRQ( usbotg );
 STD_OTG_FS_RECV_TASK( usbotg );
+
+STD_MICRORL_CMD_TASK;
 
 int pr( const char *s )
 {

@@ -31,7 +31,6 @@ int pr_sh( const char *s, int d )
 
 int  default_microrl_exec( int argc, const char * const * argv )
 {
-  int rc = 0;
   CmdFun f = 0;
   const char *nm = "???";
 
@@ -52,10 +51,20 @@ int  default_microrl_exec( int argc, const char * const * argv )
   }
 
   if( f != 0 ) {
-    pr( NL "=== CMD: \"" ); pr( nm ); pr( "\"" NL );
-    delay_ms( 50 );
-    rc = f( argc, argv );
-    pr_sdx( rc );
+    #ifdef MICRORL_USE_QUEUE
+      MicroRlCmd cmd;
+      cmd.cmd = f;
+      cmd.argc = argc;
+      cmd.argv = argv;
+      cmd.nm = nm;
+      xQueueSend( microrl_cmd_queue, &cmd, 10000  );
+    #else
+      int rc = 0;
+      pr( NL "=== CMD: \"" ); pr( nm ); pr( "\"" NL );
+      delay_ms( 50 );
+      rc = f( argc, argv );
+      pr_sdx( rc );
+    #endif
   } else {
     pr( "ERR:  Unknown command \"" );  pr( argv[0] );   pr( "\"" NL );
   }
@@ -63,3 +72,6 @@ int  default_microrl_exec( int argc, const char * const * argv )
 }
 
 
+#ifdef MICRORL_USE_QUEUE
+QueueHandle_t microrl_cmd_queue;
+#endif

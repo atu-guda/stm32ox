@@ -115,6 +115,9 @@ endif
 ifeq "$(USE_MICRORL)" "y"
   SRCPATHS += $(MICRORL_DIR)
   ALLFLAGS += -I$(MICRORL_DIR)
+  ifeq "$(USE_MICRORL_QUEUE)" "y"
+    ALLFLAGS += -DMICRORL_USE_QUEUE
+  endif
 endif
 
 ifeq "$(USE_USB_OTG)" "y"

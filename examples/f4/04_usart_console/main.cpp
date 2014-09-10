@@ -66,11 +66,14 @@ int main(void)
   leds.write( 0x0A );  delay_bad_ms( 200 );
   leds.reset( 0x0F );  delay_bad_ms( 200 );
 
+  MICRORL_INIT_QUEUE;
+
   //           fun         name    stack_sz   prm prty *handle
   xTaskCreate( task_leds, "leds", 2*def_stksz, 0, 1, 0 );
   xTaskCreate( task_usart2_send, "send", 2*def_stksz, 0, 2, 0 );
   xTaskCreate( task_usart2_recv, "recv", 2*def_stksz, 0, 2, 0 );
   xTaskCreate( task_main, "main", 2 * def_stksz, 0, 1, 0 );
+  xTaskCreate( task_microrl_cmd, "microrl_cmd", def_stksz, 0, 1, 0 );
 
   us2.initIRQ( configKERNEL_INTERRUPT_PRIORITY, 0 );
   us2.initHW();
@@ -125,6 +128,7 @@ STD_USART2_SEND_TASK( us2 );
 STD_USART2_RECV_TASK( us2 );
 STD_USART2_IRQ( us2 );
 
+STD_MICRORL_CMD_TASK;
 
 int pr( const char *s )
 {
@@ -137,7 +141,6 @@ int pr( const char *s )
 
 int prl( const char *s, int l )
 {
-  // VCP_DataTx( (const uint8_t*)(s), l );
   us2.sendBlock( s, l );
   idle_flag = 1;
   return 0;

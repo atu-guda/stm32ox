@@ -3,6 +3,7 @@
 
 #include <ox_dev.h>
 
+
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -22,6 +23,36 @@ typedef struct _CmdInfo
   const char *hint; //* help hint
 } CmdInfo;
 extern CmdInfo global_cmds[];
+
+#ifdef MICRORL_USE_QUEUE
+  #include <FreeRTOS.h>
+  #include <queue.h>
+  struct MicroRlCmd {
+    CmdFun cmd;
+    int argc;
+    const char * const * argv; // conly one cmd ot once for now - so can use ptrs
+    const char* nm;
+  };
+  extern QueueHandle_t microrl_cmd_queue;
+
+  #define MICRORL_INIT_QUEUE microrl_cmd_queue = xQueueCreate( 1, sizeof(MicroRlCmd) );
+
+  void task_microrl_cmd( void *prm );
+  #define STD_MICRORL_CMD_TASK \
+    void task_microrl_cmd( void *prm UNUSED ) { \
+      struct MicroRlCmd cmd;  BaseType_t ts; int rc; \
+      while(1) {  \
+        ts = xQueueReceive( microrl_cmd_queue, &cmd, 2000 ); \
+        if( ts == pdTRUE ) { \
+          pr( NL "=== CMD: \"" ); pr( cmd.nm ); pr( "\"" NL ); \
+          rc = cmd.cmd( cmd.argc, cmd.argv ); \
+          delay_ms( 10 ); \
+          pr_sdx( rc ); \
+        } \
+      } \
+      vTaskDelete(0); \
+    }
+#endif
 
 int pr( const char *s ); // redefine in main to current output
 int prl( const char *s, int l ); // redefine in main to current output
