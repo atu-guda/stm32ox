@@ -1,0 +1,14 @@
+Tests for devboard with STM32RBT6.
+Marked as "ek" by me by last characters in name ("miniSTM32F103R_-EK").
+I don't have board schematic for now.
+
+On board:
+LEDs: B8, B9 green, pulled to Vdd, so pull to ground to emit light.
+Buttons: C0, C1 default: HIGH, on press: LOW.
+Quarts HSE: 8MHz
+Quarts LSE: 32637Hz
+JTAG connector.
+USB 1: to A port
+USB 2: to PL2903HX: to USART n?
+Battery, reset button, boot 1,2 jumpers, USB/CAN jumpers
+
