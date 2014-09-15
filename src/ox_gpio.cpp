@@ -7,7 +7,7 @@ const GPIO_Info gpio_b { GPIOB, RCC_APB2ENR_IOPBEN, RCC_APB2 };
 const GPIO_Info gpio_c { GPIOC, RCC_APB2ENR_IOPCEN, RCC_APB2 };
 const GPIO_Info gpio_d { GPIOD, RCC_APB2ENR_IOPDEN, RCC_APB2 };
 const GPIO_Info gpio_e { GPIOE, RCC_APB2ENR_IOPEEN, RCC_APB2 };
-const GPIO_Info gpio_f { GPIOF, RCC_APB2ENR_IOPFEN, RCC_APB2 };
+// const GPIO_Info gpio_f { GPIOF, RCC_APB2ENR_IOPFEN, RCC_APB2 };
 
 #endif // STM32F1 ... x
 
