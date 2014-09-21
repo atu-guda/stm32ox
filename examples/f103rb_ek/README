@@ -9,6 +9,6 @@ Quarts HSE: 8MHz
 Quarts LSE: 32637Hz
 JTAG connector.
 USB 1: to A port
-USB 2: to PL2903HX: to USART n?
+USB 2: to PL2303HX: to USART n?
 Battery, reset button, boot 1,2 jumpers, USB/CAN jumpers
 

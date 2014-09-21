@@ -153,7 +153,7 @@ int Usart::sendBlock( const char* d, int n )
 
   int ns = 0, sst;
 
-  for( int i=0; i<n; ++i ) { // TODO: FIX to real
+  for( int i=0; i<n; ++i ) {
     sst = xQueueSend( obuf, &(d[i]), wait_tx );
     if( sst != pdTRUE ) {
       break; // TODO: err status
@@ -173,7 +173,7 @@ void Usart::handleIRQ()
   int n_work = 0;
   BaseType_t wake = pdFALSE, qrec;
   uint32_t status = usart->SR;
-  // leds.toggle( BIT3 ); // DEBUG
+  // leds.toggle( BIT1 ); // DEBUG
 
   if( status & USART_FLAG_RXNE ) { // char recived
     ++n_work;
@@ -234,6 +234,7 @@ void Usart::task_send()
   BaseType_t ts = xQueueReceive( obuf, &ct, wait_tx );
   if( ts == pdTRUE ) {
     on_transmit = true;
+    // leds.toggle( BIT1 ); // DEBUG
     sendRaw( ct );
     itConfig( USART_IT_TXE, ENABLE );
   }

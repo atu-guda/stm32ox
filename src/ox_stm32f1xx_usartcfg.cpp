@@ -105,6 +105,8 @@ DevConfig USART3Conf2 {
   USART3_IRQn, 0
 };
 
+#if defined (STM32F10X_HD) || defined  (STM32F10X_CL) || defined  (STM32F10X_XL)
+
 PinPlace UART4Conf1_pins[]  {
   { GPIOC, GPIO_Pin_10 }, // TX
   { GPIOC, GPIO_Pin_11 }  // RX
@@ -131,6 +133,6 @@ DevConfig UART5Conf1 {
   UART5_IRQn, 0
 };
 
-
+#endif
 
 
