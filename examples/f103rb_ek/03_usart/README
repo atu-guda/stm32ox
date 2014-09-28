@@ -1,6 +1,6 @@
 Simple USART usage:
 on every received char puts string with its code.
 
-Use USART:
-Use onboard USB-USART convertor
+Use USART1 and
+onboard USB-USART convertor
 
