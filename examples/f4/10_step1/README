@@ -1,0 +1,10 @@
+Test unipolar stepmotor + optodecoupler + ULN280x
+
+Output: E0-E3
+
+Used USB FS:
+A9  = Vbus
+A10 = Id
+A11 = D-
+A12 = D+
+

@@ -2,28 +2,28 @@
 #define FREERTOS_CONFIG_H
 
 #include <stdint.h>
+
+// TODO: propagate
+#ifdef __cplusplus
+ extern "C" {
+#endif
 extern uint32_t SystemCoreClock;
+#ifdef __cplusplus
+}
+#endif
 
 #define configUSE_PREEMPTION              1
-#define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
-#define configUSE_TICKLESS_IDLE           0
-// void vApplicationIdleHook( void );
 #define configUSE_IDLE_HOOK               0
-// void vApplicationTickHook( void );
 #define configUSE_TICK_HOOK               0
-// void vApplicationMallocFailedHook( void );
-#define configUSE_MALLOC_FAILED_HOOK      0
 #define configCPU_CLOCK_HZ                ( SystemCoreClock )
 #define configTICK_RATE_HZ                ( ( portTickType ) 1000 )
-#define configMAX_PRIORITIES              ( 4 )
-// min for STM32F103 example = 128 words = 512 B
+#define configMAX_PRIORITIES              ( 5 )
 #define configMINIMAL_STACK_SIZE          ( ( unsigned short ) 256 )
-#define configTOTAL_HEAP_SIZE             ( ( size_t ) ( 16 * 1024 ) )
+#define configTOTAL_HEAP_SIZE             ( ( size_t ) ( 64 * 1024 ) )
 #define configMAX_TASK_NAME_LEN           ( 16 )
 #define configUSE_TRACE_FACILITY          0
 #define configUSE_16_BIT_TICKS            0
 #define configIDLE_SHOULD_YIELD           1
-
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES             0
 #define configMAX_CO_ROUTINE_PRIORITIES   ( 2 )
@@ -31,7 +31,6 @@ extern uint32_t SystemCoreClock;
 #define configUSE_MUTEXES                 1
 #define configUSE_COUNTING_SEMAPHORES     0
 #define configQUEUE_REGISTRY_SIZE         8
-// 1, 2: void vApplicationStackOverflowHook( TaskHandle_t xTask, signed char *pcTaskName );
 #define configCHECK_FOR_STACK_OVERFLOW   0
 #define configUSE_RECURSIVE_MUTEXES       1
 #define configGENERATE_RUN_TIME_STATS     0
@@ -46,6 +45,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskSuspend              0
 #define INCLUDE_vTaskDelayUntil           0
 #define INCLUDE_vTaskDelay                1
+#define INCLUDE_pcTaskGetTaskName         1
 
 /* Cortex-M specific definitions. */
 #ifdef __NVIC_PRIO_BITS
