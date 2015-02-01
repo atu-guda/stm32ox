@@ -143,6 +143,8 @@ namespace SMLRL {
      void history_print() const;
   };
 
+  extern SmallRL *global_smallrl;
+
 }; // namespace SMLRL
 
 #endif

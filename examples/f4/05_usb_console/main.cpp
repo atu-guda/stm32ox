@@ -77,6 +77,7 @@ int main(void)
   leds.write( 0x0A );  delay_bad_ms( 200 );
   leds.reset( 0x0F );  delay_bad_ms( 200 );
 
+  global_smallrl = &srl;
   SMALLRL_INIT_QUEUE;
 
   usbotg.setOnRecv( on_received_char );

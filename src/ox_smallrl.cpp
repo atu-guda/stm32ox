@@ -2,6 +2,7 @@
 #include <ox_smallrl.h>
 #include <cstring>
 
+SMLRL::SmallRL *SMLRL::global_smallrl = nullptr;
 
 void SMLRL::u2_3dig( unsigned n, char *s )
 {

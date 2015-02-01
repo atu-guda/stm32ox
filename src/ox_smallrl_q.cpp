@@ -15,6 +15,9 @@ void task_smallrl_cmd( void * /*prm*/ )
     if( ts == pdTRUE ) {
       exec_direct( cmd.cmdline, cmd.l );
       delay_ms( 10 );
+      if( global_smallrl ) {
+        global_smallrl->redraw();
+      }
     }
   }
   vTaskDelete(0);
