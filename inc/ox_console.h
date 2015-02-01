@@ -30,7 +30,7 @@ extern CmdInfo global_cmds[];
   struct MicroRlCmd {
     CmdFun cmd;
     int argc;
-    const char * const * argv; // conly one cmd ot once for now - so can use ptrs
+    const char * const * argv; // only one cmd ot once for now - so can use ptrs !! NO !!
     const char* nm;
   };
   extern QueueHandle_t microrl_cmd_queue;

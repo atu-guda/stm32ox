@@ -30,6 +30,7 @@ SRCS += ox_gpio.cpp
 # SRCS += ox_usart.cpp
 # SRCS += ox_stm32f4xx_usartcfg.cpp
 SRCS += ox_smallrl.cpp
+SRCS += ox_smallrl_q.cpp
 SRCS += ox_usbotgfs.cpp
 SRCS += ox_stm32f4xx_usbotgfscfg.cpp
 

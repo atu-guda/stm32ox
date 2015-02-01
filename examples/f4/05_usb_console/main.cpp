@@ -9,6 +9,7 @@
 #include <ox_console.h>
 #include <ox_debug1.h>
 #include <ox_smallrl.h>
+#include <ox_smallrl_q.h>
 #include <board_stm32f407_atu_x2.h>
 
 #include <FreeRTOS.h>
@@ -25,8 +26,10 @@ const int def_stksz = 2 * configMINIMAL_STACK_SIZE;
 int smallrl_print( const char *s, int l );
 int smallrl_exec( const char *s, int l );
 void smallrl_sigint(void);
+QueueHandle_t smallrl_cmd_queue;
 
-SmallRL srl( smallrl_print, smallrl_exec );
+// SmallRL srl( smallrl_print, smallrl_exec );
+SmallRL srl( smallrl_print, exec_queue );
 
 // --- local commands;
 int cmd_log_print( int argc, const char * const * argv );
@@ -74,7 +77,7 @@ int main(void)
   leds.write( 0x0A );  delay_bad_ms( 200 );
   leds.reset( 0x0F );  delay_bad_ms( 200 );
 
-  // MICRORL_INIT_QUEUE;
+  SMALLRL_INIT_QUEUE;
 
   usbotg.setOnRecv( on_received_char );
 
@@ -82,7 +85,7 @@ int main(void)
   xTaskCreate( task_leds, "leds", 2*def_stksz, 0, 1, 0 );
   xTaskCreate( task_usbotgfscdc_recv, "urecv", 2*def_stksz, 0, 2, 0 );
   xTaskCreate( task_main, "main", 2 * def_stksz, 0, 1, 0 );
-  // xTaskCreate( task_microrl_cmd, "microrl_cmd", def_stksz, 0, 1, 0 );
+  xTaskCreate( task_smallrl_cmd, "smallrl_cmd", def_stksz, 0, 1, 0 );
 
   // usbotg.initHW(); // not req - by callback USB_OTG_BSP_Init
 
@@ -211,9 +214,9 @@ int cmd_test0( int argc, const char * const * argv )
   const char *nm = pcTaskGetTaskName( 0 );
   pr( "name: \"" ); pr( nm ); pr( "\"" NL );
 
-  usbotg.sendStr( "USB" NL );
-  delay_ms( 10 );
-  pr( NL "sendstr. "  NL );
+  // usbotg.sendStr( "USB" NL );
+  // delay_ms( 10 );
+  // pr( NL "sendstr. "  NL );
 
   // log_add( "Test0 " );
 
