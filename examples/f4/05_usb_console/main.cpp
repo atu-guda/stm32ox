@@ -160,9 +160,10 @@ int smallrl_print( const char *s, int l )
 
 int smallrl_exec( const char *s, int l )
 {
-  pr( "Cmd: \"" );
+  pr( NL "Cmd: \"" );
   prl( s, l );
   pr( "\" " NL );
+  exec_direct( s, l );
   return 1;
 }
 
@@ -177,12 +178,6 @@ void smallrl_sigint(void)
 {
   leds.toggle( BIT3 );
 }
-
-// int  microrl_exec( int argc, const char * const * argv )
-// {
-//   return default_microrl_exec( argc, argv );
-// }
-//
 
 int cmd_log_print( int argc UNUSED, const char * const * argv UNUSED )
 {
@@ -229,7 +224,9 @@ int cmd_test0( int argc, const char * const * argv )
   // }
   // pr( NL );
 
+  pr( NL "delay start..." );
   delay_ms( 5000 );
+  pr( NL "...delay end" NL );
 
   pr( NL "test0 end." NL );
   return 0;

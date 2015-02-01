@@ -1,3 +1,4 @@
+#include <ox_console.h>
 #include <ox_smallrl.h>
 #include <cstring>
 
@@ -81,6 +82,50 @@ int SMLRL::cmdline_split( char *cmd, char** argv, int max_args )
   argv[nc] = nullptr;
   return nc;
 }
+
+int SMLRL::exec_direct( const char *s, int l )
+{
+  char ss[l+1];
+  memcpy( ss, s, l+1 );
+  char *argv[MAX_ARGS];
+  int argc = cmdline_split( ss, argv, MAX_ARGS );
+  // dump8( ss, len+1 );
+
+  if( argc < 1 ) { return 1; }
+
+  CmdFun f = 0;
+  const char *nm = "???";
+
+  for( int i=0; i<CMDS_NMAX; ++i ) {
+    if( global_cmds[i].name == 0 ) {
+      break;
+    }
+    if( argv[0][1] == '\0'  &&  argv[0][0] == global_cmds[i].acr ) {
+      f = global_cmds[i].fun;
+      nm = global_cmds[i].name;
+      break;
+    }
+    if( strcmp( global_cmds[i].name, argv[0])  == 0 ) {
+      f = global_cmds[i].fun;
+      nm = global_cmds[i].name;
+      break;
+    }
+  }
+
+  if( f != 0 ) {
+      int rc = 0;
+      pr( NL "=== CMD: \"" ); pr( nm ); pr( "\"" NL );
+      delay_ms( 50 );
+      rc = f( argc, argv );
+      pr_sdx( rc );
+  } else {
+    pr( "ERR:  Unknown command \"" );  pr( argv[0] );   pr( "\"" NL );
+  }
+
+  return 0;
+}
+
+// ----------------------- SmallRL ------------------------------
 
 SMLRL::SmallRL::SmallRL( PrintFun a_prf, ExecFun a_exf )
       : prf( a_prf ), exf( a_exf )

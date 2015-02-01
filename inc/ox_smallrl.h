@@ -17,12 +17,17 @@
 #define NL "\r\n"
 #endif
 
+#ifndef MAX_ARGS
+#define MAX_ARGS 9
+#endif
+
 // man console_codes
 
 namespace SMLRL {
 
   void u2_3dig( unsigned n, char *s ); // 3 chars w/o 0
   int cmdline_split( char *cmd, char** argv, int max_args ); // modifies cmd!
+  int exec_direct( const char *s, int l );
 
   enum keys {
     KEY_NUL =  0,                        /**< ^@ Null character */
