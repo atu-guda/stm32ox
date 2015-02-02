@@ -19,7 +19,7 @@ S32P_LIB=$(S32P_DIR)/lib
 OXINC = $(OXDIR)/inc
 OXSRC = $(OXDIR)/src
 
-MICRORL_DIR=/usr/share/microrl/src
+#MICRORL_DIR=/usr/share/microrl/src
 
 DEPSDIR=.deps
 OBJDIR=.objs
@@ -112,13 +112,13 @@ ifeq "$(USE_FREERTOS)" "y"
   ALLFLAGS += -I$(RTINC) -DUSE_FREERTOS
 endif
 
-ifeq "$(USE_MICRORL)" "y"
-  SRCPATHS += $(MICRORL_DIR)
-  ALLFLAGS += -I$(MICRORL_DIR)
-  ifeq "$(USE_MICRORL_QUEUE)" "y"
-    ALLFLAGS += -DMICRORL_USE_QUEUE
-  endif
-endif
+# ifeq "$(USE_MICRORL)" "y"
+#   SRCPATHS += $(MICRORL_DIR)
+#   ALLFLAGS += -I$(MICRORL_DIR)
+#   ifeq "$(USE_MICRORL_QUEUE)" "y"
+#     ALLFLAGS += -DMICRORL_USE_QUEUE
+#   endif
+# endif
 
 ifeq "$(USE_USB_OTG)" "y"
   SRCPATHS += $(STMSRC)/usb_otg

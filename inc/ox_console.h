@@ -10,7 +10,7 @@
 
 #define NL "\r\n"
 extern int idle_flag;
-// define to transfer char to console master (microrl?)
+// define to transfer char to console master
 void on_received_char( char c );
 typedef int (*CmdFun)(int argc, const char * const * argv );
 
@@ -24,35 +24,6 @@ typedef struct _CmdInfo
 } CmdInfo;
 extern CmdInfo global_cmds[];
 
-#ifdef MICRORL_USE_QUEUE
-  #include <FreeRTOS.h>
-  #include <queue.h>
-  struct MicroRlCmd {
-    CmdFun cmd;
-    int argc;
-    const char * const * argv; // only one cmd ot once for now - so can use ptrs !! NO !!
-    const char* nm;
-  };
-  extern QueueHandle_t microrl_cmd_queue;
-
-  #define MICRORL_INIT_QUEUE microrl_cmd_queue = xQueueCreate( 1, sizeof(MicroRlCmd) );
-
-  void task_microrl_cmd( void *prm );
-  #define STD_MICRORL_CMD_TASK \
-    void task_microrl_cmd( void *prm UNUSED ) { \
-      struct MicroRlCmd cmd;  BaseType_t ts; int rc; \
-      while(1) {  \
-        ts = xQueueReceive( microrl_cmd_queue, &cmd, 2000 ); \
-        if( ts == pdTRUE ) { \
-          pr( NL "=== CMD: \"" ); pr( cmd.nm ); pr( "\"" NL ); \
-          rc = cmd.cmd( cmd.argc, cmd.argv ); \
-          delay_ms( 10 ); \
-          pr_sdx( rc ); \
-        } \
-      } \
-      vTaskDelete(0); \
-    }
-#endif
 
 int pr( const char *s ); // redefine in main to current output
 int prl( const char *s, int l ); // redefine in main to current output
@@ -63,8 +34,6 @@ int pr_sd( const char *s, int d );
 int pr_sh( const char *s, int d );
 #define pr_sdx(x) pr_sd( " " #x "= ", (uint32_t)(x) );
 #define pr_shx(x) pr_sh( " " #x "= ", (uint32_t)(x) );
-
-int  default_microrl_exec( int argc, const char * const * argv );
 
 
 #ifdef __cplusplus

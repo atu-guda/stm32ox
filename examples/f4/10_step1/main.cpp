@@ -1,5 +1,5 @@
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 #include <ox_gpio.h>
 #include <ox_usbotgfs.h>
@@ -8,23 +8,29 @@
 
 #include <ox_console.h>
 #include <ox_debug1.h>
+#include <ox_smallrl.h>
+#include <ox_smallrl_q.h>
 #include <board_stm32f407_atu_x2.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
 #include <queue.h>
 
-#include <microrl.h>
+using namespace std;
+using namespace SMLRL;
 
 BOARD_DEFINE_LEDS;
 const int def_stksz = 2 * configMINIMAL_STACK_SIZE;
 
-// microrl storage and config
-microrl_t mrl;
-void microrl_print( const char *s );
-int  microrl_exec( int argc, const char * const * argv );
-// char ** microrl_get_completion(int argc, const char * const * argv );
-void microrl_sigint(void);
+// SmallRL storage and config
+int smallrl_print( const char *s, int l );
+int smallrl_exec( const char *s, int l );
+void smallrl_sigint(void);
+QueueHandle_t smallrl_cmd_queue;
+
+// SmallRL srl( smallrl_print, smallrl_exec );
+SmallRL srl( smallrl_print, exec_queue );
+
 // --- local commands;
 int cmd_log_print( int argc, const char * const * argv );
 int cmd_log_reset( int argc, const char * const * argv );
@@ -79,7 +85,8 @@ int main(void)
   leds.write( 0x0A );  delay_bad_ms( 200 );
   leds.reset( 0x0F );  delay_bad_ms( 200 );
 
-  // MICRORL_INIT_QUEUE;
+  global_smallrl = &srl;
+  SMALLRL_INIT_QUEUE;
 
   usbotg.setOnRecv( on_received_char );
 
@@ -87,7 +94,7 @@ int main(void)
   xTaskCreate( task_leds, "leds", 2*def_stksz, 0, 1, 0 );
   xTaskCreate( task_usbotgfscdc_recv, "urecv", 2*def_stksz, 0, 2, 0 );
   xTaskCreate( task_main, "main", 2 * def_stksz, 0, 1, 0 );
-  // xTaskCreate( task_microrl_cmd, "microrl_cmd", def_stksz, 0, 1, 0 );
+  xTaskCreate( task_smallrl_cmd, "smallrl_cmd", def_stksz, 0, 1, 0 );
   xTaskCreate( task_motor, "motor", def_stksz, 0, 1, 0 );
 
   // usbotg.initHW(); // not req - by callback USB_OTG_BSP_Init
@@ -104,17 +111,17 @@ void task_main( void *prm UNUSED ) // TMAIN
 
   usbotg.init( &USR_desc, &USBD_CDC_cb, &USR_cb );
   // i2c_d.init();
+  srl.setSigFun( smallrl_sigint );
+  srl.set_ps1( "\033[32m#\033[0m ", 2 );
+  srl.re_ps();
 
-  microrl_init( &mrl, microrl_print );
-  microrl_set_execute_callback( &mrl, microrl_exec );
-  // microrl_set_complete_callback( &mrl, microrl_get_completion );
-  microrl_set_sigint_callback( &mrl, microrl_sigint );
 
   idle_flag = 1;
   while (1) {
     ++nl;
     if( idle_flag == 0 ) {
       pr_sd( ".. main idle  ", nl );
+      srl.redraw();
     }
     idle_flag = 0;
     delay_ms( 60000 );
@@ -137,7 +144,6 @@ void task_leds( void *prm UNUSED )
 STD_OTG_FS_IRQ( usbotg );
 STD_OTG_FS_RECV_TASK( usbotg );
 
-// STD_MICRORL_CMD_TASK;
 
 int pr( const char *s )
 {
@@ -155,30 +161,35 @@ int prl( const char *s, int l )
   idle_flag = 1;
   return 0;
 }
-// ---------------------------- microrl -----------------------
+// ---------------------------- smallrl -----------------------
 
-void microrl_print( const char *s )
+
+int smallrl_print( const char *s, int l )
 {
-  pr( s );
+  prl( s, l );
+  return 1;
+}
+
+int smallrl_exec( const char *s, int l )
+{
+  pr( NL "Cmd: \"" );
+  prl( s, l );
+  pr( "\" " NL );
+  exec_direct( s, l );
+  return 1;
 }
 
 // will be called by real receiver: USART, USB...
 void on_received_char( char c )
 {
-  microrl_insert_char( &mrl, c );
+  srl.addChar( c );
   idle_flag = 1;
 }
 
-int  microrl_exec( int argc, const char * const * argv )
-{
-  return default_microrl_exec( argc, argv );
-}
-
-// char ** microrl_get_completion(int argc, const char * const * argv );
-
-void microrl_sigint(void)
+void smallrl_sigint(void)
 {
   leds.toggle( BIT3 );
+  user_vars['o'-'a'] = 0;
 }
 
 int cmd_log_print( int argc UNUSED, const char * const * argv UNUSED )
@@ -213,14 +224,13 @@ int cmd_test0( int argc, const char * const * argv )
   const char *nm = pcTaskGetTaskName( 0 );
   pr( "name: \"" ); pr( nm ); pr( "\"" NL );
 
-  usbotg.sendStr( "USB" NL );
-  delay_ms( 10 );
-  pr( NL "sendstr. "  NL );
 
   // log_add( "Test0 " );
 
 
+  pr( NL "delay start..." );
   delay_ms( 5000 );
+  pr( NL "...delay end" NL );
 
   pr( NL "test0 end." NL );
   return 0;

@@ -4,7 +4,6 @@ MCTYPE=STM32F10X_CL
 LINK=$(CXX)
 
 USE_OX = y
-USE_MICRORL = y
 USE_FREERTOS = y
 USE_USB_OTG = y
 NO_STDLIB = n
@@ -23,7 +22,6 @@ SRCS += ox_common.cpp
 #SRCS += stm32f1xx_it.c
 SRCS += system_stm32f10x_cl_72_8HSE.c
 #SRCS += newlib_stubs.c # sbrk
-SRCS += microrl.c # cmdline
 
 
 # USB: local:

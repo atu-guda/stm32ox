@@ -1,27 +1,33 @@
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 #include <ox_gpio.h>
 #include <ox_usart.h>
 #include <ox_console.h>
 #include <ox_debug1.h>
+#include <ox_smallrl.h>
+#include <ox_smallrl_q.h>
 #include <board_stm32f103rb_ek.h>
 
 #include <FreeRTOS.h>
 #include <task.h>
 #include <queue.h>
 
-#include <microrl.h>
+using namespace std;
+using namespace SMLRL;
 
 BOARD_DEFINE_LEDS;
 const int def_stksz = 2 * configMINIMAL_STACK_SIZE;
 
-// microrl storage and config
-microrl_t mrl;
-void microrl_print( const char *s );
-int  microrl_exec( int argc, const char * const * argv );
-// char ** microrl_get_completion(int argc, const char * const * argv );
-void microrl_sigint(void);
+// SmallRL storage and config
+int smallrl_print( const char *s, int l );
+int smallrl_exec( const char *s, int l );
+void smallrl_sigint(void);
+QueueHandle_t smallrl_cmd_queue;
+
+// SmallRL srl( smallrl_print, smallrl_exec );
+SmallRL srl( smallrl_print, exec_queue );
+
 // --- local commands;
 int cmd_log_print( int argc, const char * const * argv );
 int cmd_log_reset( int argc, const char * const * argv );
@@ -51,7 +57,7 @@ extern "C" {
 void task_main( void *prm UNUSED );
 void task_leds( void *prm UNUSED );
 
-};
+}
 
 Usart usa( &USART1Conf1, &UsartModeAsync, 115200 );
 void on_received_char( char c );
@@ -65,7 +71,8 @@ int main(void)
   leds.write( 0x00 );  delay_bad_ms( 500 );
   leds.write( 0x02 );  delay_bad_ms( 200 );
 
-  MICRORL_INIT_QUEUE;
+  global_smallrl = &srl;
+  SMALLRL_INIT_QUEUE;
 
 
   //           fun         name    stack_sz   prm prty *handle
@@ -73,7 +80,7 @@ int main(void)
   xTaskCreate( task_usart1_recv, "recv", def_stksz, 0, 1, 0 );
   xTaskCreate( task_main, "main", def_stksz, 0, 1, 0 );
   leds.write( 0x00 );  delay_bad_ms( 500 );
-  xTaskCreate( task_microrl_cmd, "microrl_cmd", def_stksz, 0, 1, 0 );
+  xTaskCreate( task_smallrl_cmd, "smallrl_cmd", def_stksz, 0, 1, 0 );
   xTaskCreate( task_leds,        "leds", 2*def_stksz, 0, 1, 0 );
 
   // leds.write( 0x03 );  delay_bad_ms( 500 );
@@ -97,18 +104,19 @@ void task_main( void *prm UNUSED ) // TMAIN
   uint32_t nl = 0;
 
   // i2c_d.init();
-
   pr( "***** Main loop: ****** " NL );
-  microrl_init( &mrl, microrl_print );
-  microrl_set_execute_callback( &mrl, microrl_exec );
-  // microrl_set_complete_callback( &mrl, microrl_get_completion );
-  microrl_set_sigint_callback( &mrl, microrl_sigint );
+
+  srl.setSigFun( smallrl_sigint );
+  srl.set_ps1( "\033[32m#\033[0m ", 2 );
+  srl.re_ps();
+
 
   idle_flag = 1;
   while (1) {
     ++nl;
     if( idle_flag == 0 ) {
       pr_sd( ".. main idle  ", nl );
+      srl.redraw();
     }
     idle_flag = 0;
     delay_ms( 60000 );
@@ -132,7 +140,7 @@ STD_USART1_SEND_TASK( usa );
 STD_USART1_RECV_TASK( usa );
 STD_USART1_IRQ( usa );
 
-STD_MICRORL_CMD_TASK;
+
 int pr( const char *s )
 {
   if( !s || !*s ) {
@@ -148,28 +156,32 @@ int prl( const char *s, int l )
   idle_flag = 1;
   return 0;
 }
-// ---------------------------- microrl -----------------------
+// ---------------------------- smallrl -----------------------
 
-void microrl_print( const char *s )
+
+int smallrl_print( const char *s, int l )
 {
-  pr( s );
+  prl( s, l );
+  return 1;
+}
+
+int smallrl_exec( const char *s, int l )
+{
+  pr( NL "Cmd: \"" );
+  prl( s, l );
+  pr( "\" " NL );
+  exec_direct( s, l );
+  return 1;
 }
 
 // will be called by real receiver: USART, USB...
 void on_received_char( char c )
 {
-  microrl_insert_char( &mrl, c );
+  srl.addChar( c );
   idle_flag = 1;
 }
 
-int  microrl_exec( int argc, const char * const * argv )
-{
-  return default_microrl_exec( argc, argv );
-}
-
-// char ** microrl_get_completion(int argc, const char * const * argv );
-
-void microrl_sigint(void)
+void smallrl_sigint(void)
 {
   leds.toggle( BIT1 );
 }

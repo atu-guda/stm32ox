@@ -135,7 +135,6 @@ void task_leds( void *prm UNUSED )
 STD_OTG_FS_IRQ( usbotg );
 STD_OTG_FS_RECV_TASK( usbotg );
 
-// STD_MICRORL_CMD_TASK;
 
 int pr( const char *s )
 {
@@ -235,5 +234,6 @@ int cmd_test0( int argc, const char * const * argv )
   pr( NL "test0 end." NL );
   return 0;
 }
+
 
 // vim: path=.,/usr/share/stm32lib/inc/,/usr/arm-none-eabi/include,ox/inc,ox/inc/usb_cdc

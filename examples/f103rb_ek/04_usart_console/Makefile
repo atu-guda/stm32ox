@@ -4,8 +4,8 @@ MCTYPE = STM32F103
 LINK=$(CXX)
 
 USE_OX = y
-USE_MICRORL = y
-USE_MICRORL_QUEUE = y
+USE_MICRORL = n
+USE_MICRORL_QUEUE = n
 USE_FREERTOS = y
 USE_USB_OTG = n
 USE_USB_DEFAULT_CDC = n
@@ -29,6 +29,8 @@ SRCS += ox_gpio.cpp
 #SRCS += ox_i2c.cpp
 SRCS += ox_usart.cpp
 SRCS += ox_stm32f1xx_usartcfg.cpp
+SRCS += ox_smallrl.cpp
+SRCS += ox_smallrl_q.cpp
 
 # stm32lib sources
 # SRCS += stm32f10x_adc.c
@@ -69,7 +71,7 @@ SRCS += port.c
 #   rtos/Source/portable/GCC/ARM_CM3/portmacro.h or CM4F
 
 # console microrl
-SRCS += microrl.c
+#SRCS += microrl.c
 
 ###################################################
 
