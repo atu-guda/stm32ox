@@ -18,6 +18,7 @@ void task_leds( void *prm UNUSED );
 int main(void)
 {
   leds.initHW();
+
   NVIC_SetPriorityGrouping( NVIC_PriorityGroup_4 );
 
   leds.write( 0x0F );  delay_bad_ms( 200 );
@@ -50,5 +51,4 @@ void _exit( int rc UNUSED )
 }
 
 
-// vim: path=.,/usr/share/stm32lib/inc/,/usr/arm-none-eabi/include,ox/inc
-
+// vim: path=.,/usr/share/stm32lib/inc/,/usr/arm-none-eabi/include,ox/inc,ox/inc/usb_cdc

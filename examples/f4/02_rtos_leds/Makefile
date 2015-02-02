@@ -4,7 +4,6 @@ MCTYPE = STM32F407
 LINK=$(CXX)
 
 USE_OX = y
-USE_MICRORL = n
 USE_FREERTOS = y
 USE_USB_OTG = n
 USE_USB_DEFAULT_CDC = n
@@ -52,7 +51,7 @@ SRCS += stm32f4xx_gpio.c
 # SRCS += stm32f4xx_i2c.c
 # SRCS += stm32f4xx_iwdg.c
 # SRCS += stm32f4xx_ltdc.c
-# SRCS += stm32f4xx_misc.c
+SRCS += stm32f4xx_misc.c
 # SRCS += stm32f4xx_pwr.c
 SRCS += stm32f4xx_rcc.c
 # SRCS += stm32f4xx_rng.c

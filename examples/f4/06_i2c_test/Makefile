@@ -4,8 +4,6 @@ MCTYPE = STM32F407
 LINK=$(CXX)
 
 USE_OX = y
-USE_MICRORL = n
-USE_MICRORL_QUEUE = n
 USE_FREERTOS = y
 USE_USB_OTG = y
 USE_USB_DEFAULT_CDC = y
@@ -87,9 +85,6 @@ SRCS += heap_2.c
 SRCS += port.c
 # Beware: portmacro.h is symlink to
 #   rtos/Source/portable/GCC/ARM_CM3/portmacro.h or CM4F
-
-# console microrl
-#SRCS += microrl.c
 
 ###################################################
 

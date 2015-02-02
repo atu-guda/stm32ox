@@ -1,1 +1,1 @@
-rtos/Source/portable/GCC/ARM_CM3/portmacro.h
+../common/portmacro.h
