@@ -52,10 +52,10 @@ class DevSPI : public DevBase {
    };
    enum CFG {
      // config names:
-     2L_DUPLEX = 0x0000,            //* 2 lines duplex
-     2L_RX     = 0x0400,            //* 2 lines RX only
-     1L_RX     = 0x8000,            //* 1 line  RX only
-     1L_TX     = 0xC000,            //* 1 line  TX only
+     L2_DUPLEX = 0x0000,            //* 2 lines duplex
+     L2_RX     = 0x0400,            //* 2 lines RX only
+     L1_RX     = 0x8000,            //* 1 line  RX only
+     L1_TX     = 0xC000,            //* 1 line  TX only
      MASTER    = 0x0104,            //* Master: MSTR | SSI
      SLAVE     = 0x0000,            //* Slave
      DS_8b     = 0x0000,            //* Datasize: 8 bit
@@ -98,7 +98,7 @@ class DevSPI : public DevBase {
     {
     }
    void init();
-   void deInit() { SPI_DeInit( i2c ); };
+   void deInit() { SPI_DeInit( spi ); };
    SPI_TypeDef* getDev() { return spi; };
    void enable()     { spi->CR1 |= (uint16_t)( CR1F::SPE); };
    void disable()    { spi->CR1 &= (uint16_t)(~CR1F::SPE); };

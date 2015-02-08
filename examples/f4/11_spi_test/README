@@ -1,0 +1,14 @@
+SPI test
+
+User SPI1 main master config, soft NSS
+NSS  = A4
+SCK  = A5
+MISO = A6
+MOSI = A7
+
+Used USB FS:
+A9  = Vbus
+A10 = Id
+A11 = D-
+A12 = D+
+
