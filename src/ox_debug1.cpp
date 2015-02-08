@@ -130,6 +130,8 @@ int cmd_info( int argc UNUSED, const char * const * argv UNUSED )
 {
   RCC_ClocksTypeDef clst;
   RCC_GetClocksFreq( &clst );
+  pr( NL "**** " PROJ_NAME " **** " NL );
+
   pr( "SYSCLK: " );  pr_d( clst.SYSCLK_Frequency );
   pr( "  HCLK: " );  pr_d( clst.HCLK_Frequency );
   pr( "  PCLK1: " ); pr_d( clst.PCLK1_Frequency );

@@ -35,12 +35,12 @@ RTINC=$(RTSRC)/include
 #SRCS += queue.c
 #SRCS += tasks.c
 #SRCS += timers.c
-# symlink to Source/portable/GCC/ARM_CM3/port.c <<< change
+# symlink to Source/portable/GCC/ARM_CM[3,4,4F]/port.c <<< change
 #SRCS += heap_2.c
-# symlink to Source/portable/GCC/ARM_CM4F/port.c <<< change
+# symlink to Source/portable/GCC/ARM_CM[3,4,4F]/port.c <<< change
 #SRCS += port.c
 # Beware: portmacro.h is symlink to
-#   rtos/Source/portable/GCC/ARM_CM3/portmacro.h or CM4F
+#   rtos/Source/portable/GCC/ARM_CM3/portmacro.h or CM[3,4,4F]
 
 ###################################################
 
@@ -50,6 +50,7 @@ ALLFLAGS += -fno-common -ffunction-sections -fdata-sections
 CWARNFLAGS := -Wimplicit-function-declaration -Wmissing-prototypes -Wstrict-prototypes
 
 ALLFLAGS += -DUSE_STDPERIPH_DRIVER=1
+ALLFLAGS += -DPROJ_NAME=\"$(PROJ_NAME)\"
 ALLFLAGS += -ffreestanding
 ALLFLAGS += -mlittle-endian
 ifeq "$(NO_STDLIB)" "y"

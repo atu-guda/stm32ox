@@ -67,6 +67,9 @@ UsbOtgFs *usbfs_main = &usbotg;
 
 void on_received_char( char c );
 
+
+int brk = 0;
+
 int main(void)
 {
   leds.initHW();
@@ -102,6 +105,12 @@ void task_main( void *prm UNUSED ) // TMAIN
 
   usbotg.init( &USR_desc, &USBD_CDC_cb, &USR_cb );
   // i2c_d.init();
+  delay_ms( 10 );
+
+  pr( NL "**** " PROJ_NAME ); // may be not seed if connected late
+  pr( NL " ***** Main loop: ****** " NL NL );
+  delay_ms( 10 );
+
   srl.setSigFun( smallrl_sigint );
   srl.set_ps1( "\033[32m#\033[0m ", 2 );
   srl.re_ps();
@@ -180,6 +189,7 @@ void on_received_char( char c )
 void smallrl_sigint(void)
 {
   leds.toggle( BIT3 );
+  brk = 1;
 }
 
 int cmd_log_print( int argc UNUSED, const char * const * argv UNUSED )
