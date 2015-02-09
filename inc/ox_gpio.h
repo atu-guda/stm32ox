@@ -5,20 +5,12 @@
 
 #if defined STM32F1
  #include <stm32f10x_gpio.h>
- #define SET_BIT_REG   BSRR
- #define RESET_BIT_REG BRR
 #elif defined STM32F2
  #include <stm32f2xx_gpio.h>
- #define SET_BIT_REG   BSRRL
- #define RESET_BIT_REG BSRRH
 #elif defined STM32F3
  #include <stm32f30x_gpio.h>
- #define SET_BIT_REG   BSRR
- #define RESET_BIT_REG BRR
 #elif defined STM32F4
  #include <stm32f4xx_gpio.h>
- #define SET_BIT_REG   BSRRL
- #define RESET_BIT_REG BSRRH
 #else
  #error "Undefined MC type"
 #endif // STM32Fxxx

@@ -38,6 +38,8 @@ int cmd_log_print( int argc, const char * const * argv );
 int cmd_log_reset( int argc, const char * const * argv );
 int cmd_test0( int argc, const char * const * argv );
 
+int cmd_spiinfo( int argc, const char * const * argv );
+
 int idle_flag = 0;
 
 CmdInfo global_cmds[] = {
@@ -53,6 +55,7 @@ CmdInfo global_cmds[] = {
   { "test0", 'T', cmd_test0,      " - test something 0" },
   { "print", 'p', cmd_pvar,       "name - print user var a-z" },
   { "set",   's', cmd_svar,       "name value - set var a-z" },
+  { "spii",  'I', cmd_spiinfo,    "Outputs SPI regs" },
   { 0, 0, 0, 0 }
 };
 
@@ -71,6 +74,11 @@ void on_received_char( char c );
 
 
 int brk = 0;
+
+using SCF = DevSPI::CFG;
+DevSPI spi1( &SPI1Conf1, &SPIMode_Duplex_Master_NSS_Soft,
+      SCF::L2_DUPLEX | SCF::DS_8b | SCF::CPOL_LOW | SCF::CHPAL_1E
+    | SCF::NSS_SOFT | SCF::MSB_FIRST | SCF::BRP_256 );
 
 int main(void)
 {
@@ -108,6 +116,9 @@ void task_main( void *prm UNUSED ) // TMAIN
   usbotg.init( &USR_desc, &USBD_CDC_cb, &USR_cb );
   // i2c_d.init();
   delay_ms( 10 );
+  spi1.initHW();
+  spi1.init();
+  spi1.enable();
 
   pr( NL "**** " PROJ_NAME ); // may be not seed if connected late
   pr( NL " ***** Main loop: ****** " NL NL );
@@ -239,11 +250,31 @@ int cmd_test0( int argc, const char * const * argv )
   // }
   // pr( NL );
 
-  pr( NL "delay start..." );
-  delay_ms( 5000 );
-  pr( NL "...delay end" NL );
+  // bad debug:
+  PinPlace px { GPIOC, BIT0 };
+  PinHold ph( &px, true );
+
+  // pr( NL "write start..." );
+  // for( int i=0; i<100; ++i ) {
+  //   spi1.setData( 0xFF );
+  //   delay_ms(10);
+  // }
+  // pr( NL "...write end" NL );
+  uint16_t rv = spi1.send_recv1( 0x15 );
+  pr_sh( "rv= ", rv );
 
   pr( NL "test0 end." NL );
+  return 0;
+}
+
+int cmd_spiinfo( int argc UNUSED, const char * const * argv UNUSED )
+{
+  auto s = spi1.getDev();
+  pr_sh( "spi= ", (uint32_t)(s) );
+  pr_sh( "CR1= ", s->CR1 );
+  pr_sh( "CR2= ", s->CR2 );
+  pr_sh( "SR = ", s->SR  );
+  pr_sh( "DR = ", s->DR  );
   return 0;
 }
 

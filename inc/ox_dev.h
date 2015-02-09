@@ -3,6 +3,23 @@
 
 #include <ox_base.h>
 
+#if defined STM32F1
+ #define SET_BIT_REG   BSRR
+ #define RESET_BIT_REG BRR
+#elif defined STM32F2
+ #define SET_BIT_REG   BSRRL
+ #define RESET_BIT_REG BSRRH
+#elif defined STM32F3
+ #define SET_BIT_REG   BSRR
+ #define RESET_BIT_REG BRR
+#elif defined STM32F4
+ #define SET_BIT_REG   BSRRL
+ #define RESET_BIT_REG BSRRH
+#else
+ #error "Undefined MC type"
+#endif // STM32Fxxx
+
+
 extern reg32 *const RCC_enr[RCC_Bus::RCC_NBUS];
 
 //* Single pin description
@@ -40,6 +57,26 @@ class DevBase {
   protected:
    const DevConfig *cfg;
    const DevMode   *mode;
+};
+
+inline void pin_set( PinPlace *p )
+{
+  p->port->SET_BIT_REG = p->pin;
+}
+
+inline void pin_reset( PinPlace *p )
+{
+  p->port->RESET_BIT_REG = p->pin;
+}
+
+//* AUX class to hold pin value while object lifetime, and revert on death
+class PinHold {
+  public:
+   PinHold( PinPlace *a_pin, bool val, bool a_skip = false );
+   ~PinHold();
+  protected:
+   PinPlace *p;
+   bool v, skip;
 };
 
 #endif

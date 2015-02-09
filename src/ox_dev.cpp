@@ -105,3 +105,27 @@ void DevBase::initIRQ( uint8_t prio, uint8_t n  )
   NVIC_Init( &nv );
 }
 
+// ----------------------- PinHold --------------------------------
+
+PinHold::PinHold( PinPlace *a_pin, bool val, bool a_skip )
+  : p( a_pin ), v( val ), skip( a_skip )
+{
+  if( !skip ) {
+    if( v ) {
+      pin_set( p );
+    } else {
+      pin_reset( p );
+    }
+  }
+}
+
+PinHold::~PinHold()
+{
+  if( !skip ) {
+    if( !v ) {
+      pin_reset( p );
+    } else {
+      pin_set( p );
+    }
+  }
+}

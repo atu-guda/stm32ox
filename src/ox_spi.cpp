@@ -7,12 +7,12 @@ PinModeNum  SPIMode_Duplex_pins[] {
 };
 
 DevMode SPIMode_Duplex_Master = {
-  SPI_Mode_Master, // mode
+  DevSPI::CFG::MASTER, // mode
   ARR_AND_SZ( SPIMode_Duplex_pins )
 };
 
 DevMode SPIMode_Duplex_Slave = {
-  SPI_Mode_Slave, // mode
+  DevSPI::CFG::SLAVE, // mode
   ARR_AND_SZ( SPIMode_Duplex_pins )
 };
 
@@ -26,25 +26,107 @@ PinModeNum  SPIMode_Duplex_NSS_pins[] {
 
 
 DevMode SPIMode_Duplex_Master_NSS = {
-  SPI_Mode_Master, // mode
+  DevSPI::CFG::MASTER, // mode
   ARR_AND_SZ( SPIMode_Duplex_NSS_pins )
 };
 
 
 DevMode SPIMode_Duplex_Slave_NSS = {
-  SPI_Mode_Slave, // mode
+  DevSPI::CFG::SLAVE, // mode
   ARR_AND_SZ( SPIMode_Duplex_NSS_pins )
 };
 
 
+PinModeNum  SPIMode_Duplex_NSS_Soft_pins[] {
+  pinMode_AF_PP, // SCK
+  pinMode_AF_PP, // MISO
+  pinMode_AF_PP, // MOSI
+  pinMode_Out_PP // NSS
+};
 
+DevMode SPIMode_Duplex_Master_NSS_Soft = {
+  DevSPI::CFG::MASTER | DevSPI::CFG::NSS_SOFT, // mode
+  ARR_AND_SZ( SPIMode_Duplex_NSS_Soft_pins )
+};
+
+
+DevMode SPIMode_Duplex_Slave_NSS_Soft = {
+  DevSPI::CFG::SLAVE | DevSPI::CFG::NSS_SOFT, // mode
+  ARR_AND_SZ( SPIMode_Duplex_NSS_Soft_pins )
+};
+
+// -------------------------------------------------
+
+DevSPI::DevSPI( const DevConfig *dconf, const DevMode *dmode, uint16_t a_cr1_init )
+     : DevBase( dconf, dmode ),
+       cr1_init( a_cr1_init | dmode->mode ),
+       spi( (SPI_TypeDef*)(dconf->base))
+{
+}
 
 void DevSPI::init()
 {
   disable();
-  enable();
   uint16_t t = spi->CR1;
+  t &= CR1F::CLEAR_MASK;
+  t |= cr1_init;
+  spi->CR1 = t;
+  spi->I2SCFGR &= (uint16_t)~SPI_I2SCFGR_I2SMOD;
+  spi->CRCPR   = crc_poly;
+  // TODO: soft nss ctl
+  if( cr1_init && CFG::NSS_SOFT ) {
+    pin_set( &( cfg->pins[pinnum_NSS] ) );
+  }
   err = 0; n_trans = 0;
+}
+
+void DevSPI::deInit()
+{
+  SPI_DeInit( spi );
+  if( cr1_init && CFG::NSS_SOFT ) {
+    pin_set( &( cfg->pins[pinnum_NSS] ) );
+  }
+};
+
+int DevSPI::wait_flag( uint16_t flg )
+{
+  for( int i=0; i<maxWait; ++i ) {
+    if( spi->SR & flg ) {
+      return 1;
+    }
+    wait_fun();
+  }
+  return 0;
+}
+
+
+int DevSPI::wait_nflag( uint16_t flg )
+{
+  for( int i=0; i<maxWait; ++i ) {
+    if( ! (spi->SR & flg) ) {
+      return 1;
+    }
+    wait_fun();
+  }
+  return 0;
+}
+
+uint16_t DevSPI::send_recv1( uint16_t vs )
+{
+  PinHold( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
+  if( ! wait_TXE() ) {
+    return 0;
+  }
+  spi->DR = vs;
+  if( ! wait_TXE() ) {
+    return 0;
+  }
+  spi->DR = 0x55;
+  if( ! wait_RXNE() ) {
+    return 0;
+  }
+  uint16_t vr = spi->DR;
+  return vr;
 }
 
 
