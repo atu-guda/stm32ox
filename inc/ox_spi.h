@@ -116,32 +116,19 @@ class DevSPI : public DevBase {
    uint16_t getSR()  { return spi->SR; }
    uint16_t getData() { return spi->DR; }
    void     setData( uint16_t d ) { spi->DR = d; }
+
+   int get_wait_count() const { return wait_count; };
    int wait_flag( uint16_t flg );
    int wait_nflag( uint16_t flg );
    int wait_TXE() { return wait_flag( SRF::TXE ); }
    int wait_RXNE() { return wait_flag( SRF::RXNE ); }
    int wait_N_BSY() { return wait_nflag( SRF::BSY ); }
-   uint16_t send_recv1( uint16_t vs );
-   // int send_pure( const uint8_t *ds, int ns ); // return 0=Err 1=Ok
-   // // returns: >0 = N of send/recv bytes, <0 - error
-   // int  send(  uint8_t ds );
-   // int  send(  const uint8_t *ds, int ns );
-   // int  send_reg_n(  uint32_t reg, uint8_t reglen,  const uint8_t *ds, int ns );
-   // int  send_reg1(  uint8_t reg,  const uint8_t *ds, int ns );
-   // int  send_reg2(  uint16_t reg, const uint8_t *ds, int ns );
-   // int  recv_pure( uint8_t *dd, int nd );
-   // int  recv( uint8_t addr );
-   // int  recv(  uint8_t *dd, int nd );
-   // int  recv_reg_n(  int32_t reg, uint8_t reglen,  uint8_t *dd, int nd );
-   // int  recv_reg1(  int8_t reg,  uint8_t *dd, int nd );
-   // int  recv_reg2(  int16_t reg, uint8_t *dd, int nd );
-   // int  send_recv(  const uint8_t *ds, int ns, uint8_t *dd, int nd );
-   // void setMaxWait( uint32_t mv ) { maxWait = mv; }
-   // int getWaitCount() const { return wait_count; }
-   // uint16_t getNTrans() const { return n_trans; };
-   // uint16_t getErr() const { return err; };
-   // int waitForEv( uint32_t ev, int errcode ); // return 0 - failed to wait, != 0 - Ok
-   // int waitNoBusy(); // same
+
+   uint16_t send1( uint16_t vs ); // all returns number of tranferred in last direction
+   uint16_t recv1( uint16_t *vr );
+   uint16_t send1_recv1( uint16_t vs, uint16_t *vr );
+   uint16_t send1_recvN_b( uint16_t vs, uint8_t *vr, int nr );
+   uint16_t sendM_recvN_b( uint8_t *vs, int ns, uint8_t *vr, int nr );
 
   protected:
    uint16_t cr1_init;

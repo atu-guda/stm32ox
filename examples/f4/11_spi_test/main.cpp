@@ -46,7 +46,7 @@ CmdInfo global_cmds[] = {
   { "help",  'h', cmd_help,       " - List of commands and arguments" },
   { "info",  'i', cmd_info,       " - Output general info" },
   { "dump",  'd', cmd_dump,       " {a|b|addr} [n] - HexDumps given area" },
-  { "fill",  'f', cmd_fill,       " {a|b|addr} val [n] - Fills memory by value" },
+  { "fill",  'f', cmd_fill,       " {a|b|addr} val [n] [stp] - Fills memory by value" },
   { "echo",  'e', cmd_echo,       " [args] - output args" },
   { "reboot", 0,  cmd_reboot,     " reboot system" },
   { "die",    0,  cmd_die,        " [val] - die with value" },
@@ -120,7 +120,7 @@ void task_main( void *prm UNUSED ) // TMAIN
   spi1.init();
   spi1.enable();
 
-  pr( NL "**** " PROJ_NAME ); // may be not seed if connected late
+  pr( NL "**** " PROJ_NAME NL ); // may be not seed if connected late
   pr( NL " ***** Main loop: ****** " NL NL );
   delay_ms( 10 );
 
@@ -237,31 +237,27 @@ int cmd_test0( int argc, const char * const * argv )
   const char *nm = pcTaskGetTaskName( 0 );
   pr( "name: \"" ); pr( nm ); pr( "\"" NL );
 
-  // usbotg.sendStr( "USB" NL );
-  // delay_ms( 10 );
-  // pr( NL "sendstr. "  NL );
-
   // log_add( "Test0 " );
 
-  // us2.sendStr( "USART 2 String " );
-  // for( int i=0; i< a1; ++i ) {
-  //   us2.sendStr( " 12345" );
-  //   us2.sendStr( "67890 ***" NL );
-  // }
-  // pr( NL );
 
-  // bad debug:
-  PinPlace px { GPIOC, BIT0 };
-  PinHold ph( &px, true );
+  uint32_t rv0 = 0;
+  uint16_t nt0 = spi1.send1_recvN_b( 0x15, (uint8_t*)&rv0, 4 ); // ID for AT25F512
+  int wac0 = spi1.get_wait_count();
+  pr_shx( rv0 );
+  pr_sdx( nt0 );
+  pr_sdx( wac0 );
 
-  // pr( NL "write start..." );
-  // for( int i=0; i<100; ++i ) {
-  //   spi1.setData( 0xFF );
-  //   delay_ms(10);
-  // }
-  // pr( NL "...write end" NL );
-  uint16_t rv = spi1.send_recv1( 0x15 );
-  pr_sh( "rv= ", rv );
+  uint32_t c_re = 0x00000003;
+  nt0 = spi1.sendM_recvN_b( (uint8_t*)(&c_re), 4, (uint8_t*)&gbuf_a, 0x40 ); // ID for AT25F512
+  pr_sdx( nt0 );
+
+  // uint16_t nt0 = spi1.send1_recv1( 0x15, &rv0 ); // ID for AT25F512
+  // int wac0 = spi1.get_wait_count();
+  // uint16_t nt1 = spi1.recv1( &rv1 );
+  // int wac1 = spi1.get_wait_count();
+  // pr_shx( rv0 );  pr_shx( rv1 );
+  // pr_sdx( nt0 );  pr_sdx( nt1 );
+  // pr_sdx( wac0 ); pr_sdx( wac1 );
 
   pr( NL "test0 end." NL );
   return 0;

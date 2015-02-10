@@ -213,12 +213,12 @@ int cmd_fill( int argc, const char * const * argv )
     return 2;
   }
 
-  char v = 0;
+  uint8_t v = 0;
   if( argc >= 3 ) {
     if( argv[2][0] == '\'' ) {
       v = argv[2][1];
     } else {
-      v = ( char ) ( strtol( argv[2], 0, 0 ) );
+      v = ( uint8_t ) ( strtol( argv[2], 0, 0 ) );
     }
   }
 
@@ -226,12 +226,20 @@ int cmd_fill( int argc, const char * const * argv )
   if( argc >= 4 ) {
     n = strtol( argv[3], 0, 0 );
   }
+
+  uint8_t stp = 0;
+  if( argc >= 5 ) {
+    stp = ( uint8_t ) ( strtol( argv[4], 0, 0 ) );
+  }
+
+
   pr( "** fill: addr=" ); pr_a( addr );
   pr_sdx( v );
   pr_sdx( n );
+  pr_sdx( stp );
 
   for( int i=0; i<n; ++i, ++addr ) {
-    *addr = v;
+    *addr = v; v+=stp;
   }
   pr( NL "---------- done---------------" NL );
   return 0;

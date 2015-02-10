@@ -122,7 +122,7 @@ PinHold::PinHold( PinPlace *a_pin, bool val, bool a_skip )
 PinHold::~PinHold()
 {
   if( !skip ) {
-    if( !v ) {
+    if( v ) {
       pin_reset( p );
     } else {
       pin_set( p );
