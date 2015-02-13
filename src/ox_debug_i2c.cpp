@@ -56,6 +56,9 @@ int cmd_i2c_scan( int argc, const char * const * argv )
 
   return 0;
 }
+CmdInfo CMDINFO_I2C_SCAN {
+  "scan",  'C', cmd_i2c_scan, "[start [end]] - scan I2C in range"
+};
 
 int cmd_i2c_send( int argc, const char * const * argv )
 {
@@ -93,6 +96,9 @@ int cmd_i2c_send( int argc, const char * const * argv )
 
   return 0;
 }
+CmdInfo CMDINFO_I2C_SEND {
+  "send",  'S', cmd_i2c_send,   "val [addr] - send to I2C (def addr=var[p])"
+};
 
 int cmd_i2c_send_r1( int argc, const char * const * argv )
 {
@@ -116,6 +122,9 @@ int cmd_i2c_send_r1( int argc, const char * const * argv )
 
   return 0;
 }
+CmdInfo CMDINFO_I2C_SEND_R1 {
+  "send1", 0, cmd_i2c_send_r1, "reg val  send to I2C, reg addr 1B (addr=var[p])"
+};
 
 int cmd_i2c_send_r2( int argc, const char * const * argv )
 {
@@ -139,6 +148,9 @@ int cmd_i2c_send_r2( int argc, const char * const * argv )
 
   return 0;
 }
+CmdInfo CMDINFO_I2C_SEND_R2 {
+  "send2",  0,  cmd_i2c_send_r2, "reg val  send to I2C, reg addr 2B (addr=var[p])"
+};
 
 
 int cmd_i2c_recv( int argc, const char * const * argv )
@@ -180,6 +192,9 @@ int cmd_i2c_recv( int argc, const char * const * argv )
 
   return 0;
 }
+CmdInfo CMDINFO_I2C_RECV {
+  "recv",  'R', cmd_i2c_recv,    "[addr] - recv from I2C (def addr=var[p])"
+};
 
 int cmd_i2c_recv_r1( int argc, const char * const * argv )
 {
@@ -220,6 +235,9 @@ int cmd_i2c_recv_r1( int argc, const char * const * argv )
 
   return 0;
 }
+CmdInfo CMDINFO_I2C_RECV_R1 {
+  "recv1",  0,  cmd_i2c_recv_r1, "reg [n] - recv from I2C, reg addr 1B (addr=var[p])"
+};
 
 void i2c_print_status( DevI2C &i2c )
 {
@@ -268,5 +286,8 @@ int cmd_i2c_recv_r2( int argc, const char * const * argv )
 
   return 0;
 }
+CmdInfo CMDINFO_I2C_RECV_R2 {
+  "recv2",  0,  cmd_i2c_recv_r2, "reg [n] - recv from I2C, reg addr 2B (addr=var[p])"
+};
 
 

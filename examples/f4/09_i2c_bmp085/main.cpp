@@ -35,43 +35,20 @@ QueueHandle_t smallrl_cmd_queue;
 // SmallRL srl( smallrl_print, smallrl_exec );
 SmallRL srl( smallrl_print, exec_queue );
 
-// --- local commands;
-int cmd_log_print( int argc, const char * const * argv );
-int cmd_log_reset( int argc, const char * const * argv );
-int cmd_test0( int argc, const char * const * argv );
-// --- I2C commands;
-int cmd_i2c_scan( int argc, const char * const * argv );
-int cmd_i2c_send( int argc, const char * const * argv );
-int cmd_i2c_send_r1( int argc, const char * const * argv );
-int cmd_i2c_send_r2( int argc, const char * const * argv );
-int cmd_i2c_recv( int argc, const char * const * argv );
-int cmd_i2c_recv_r1( int argc, const char * const * argv );
-int cmd_i2c_recv_r2( int argc, const char * const * argv );
-
 int idle_flag = 0;
 
-CmdInfo global_cmds[] = {
-  { "help",  'h', cmd_help,       " - List of commands and arguments" },
-  { "info",  'i', cmd_info,       " - Output general info" },
-  { "dump",  'd', cmd_dump,       " {a|b|addr} [n] - HexDumps given area" },
-  { "fill",  'f', cmd_fill,       " {a|b|addr} val [n] - Fills memory by value" },
-  { "echo",  'e', cmd_echo,       " [args] - output args" },
-  { "reboot", 0,  cmd_reboot,     " reboot system" },
-  { "die",    0,  cmd_die,        " [val] - die with value" },
-  { "lp",     0,  cmd_log_print,  "  - print log buffer" },
-  { "lr",     0,  cmd_log_reset,  "  - reset log buffer" },
-  { "test0", 'T', cmd_test0,      " - test something 0" },
-  { "print", 'p', cmd_pvar,       "name - print user var a-z" },
-  { "set",   's', cmd_svar,       "name value - set var a-z" },
-  { "scan",  'C', cmd_i2c_scan,   "[start [end]] - scan I2C in range" },
-  { "send",  'S', cmd_i2c_send,   "val [addr] - send to I2C (def addr=var[p])" },
-  { "send1",  0,  cmd_i2c_send_r1, "reg val  send to I2C, reg addr 1B (addr=var[p])" },
-  { "send2",  0,  cmd_i2c_send_r2, "reg val  send to I2C, reg addr 2B (addr=var[p])" },
-  { "recv",  'R', cmd_i2c_recv,    "[addr] - recv from I2C (def addr=var[p])" },
-  { "recv1",  0,  cmd_i2c_recv_r1, "reg [n] - recv from I2C, reg addr 1B (addr=var[p])" },
-  { "recv2",  0,  cmd_i2c_recv_r2, "reg [n] - recv from I2C, reg addr 2B (addr=var[p])" },
-  { 0, 0, 0, 0 }
+// --- local commands;
+int cmd_test0( int argc, const char * const * argv );
+CmdInfo CMDINFO_TEST0 { "test0", 'T', cmd_test0, " - test something 0"  };
+
+const CmdInfo* global_cmds[] = {
+  DEBUG_CMDS,
+  DEBUG_I2C_CMDS,
+
+  &CMDINFO_TEST0,
+  nullptr
 };
+
 
 
 extern "C" {
@@ -212,18 +189,6 @@ void smallrl_sigint(void)
 {
   leds.toggle( BIT3 );
   brk = 1;
-}
-
-int cmd_log_print( int argc UNUSED, const char * const * argv UNUSED )
-{
-  log_print();
-  return 0;
-}
-
-int cmd_log_reset( int argc UNUSED, const char * const * argv UNUSED )
-{
-  log_reset();
-  return 0;
 }
 
 void _exit( int rc )
