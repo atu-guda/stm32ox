@@ -111,7 +111,7 @@ int DevSPI::wait_nflag( uint16_t flg )
   return 0;
 }
 
-uint16_t DevSPI::send1( uint16_t vs )
+uint16_t DevSPI::send1x( uint16_t vs )
 {
   n_trans = 0;
   PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );

@@ -26,6 +26,7 @@ SRCS += ox_console.cpp
 SRCS += ox_debug1.cpp
 SRCS += ox_gpio.cpp
 SRCS += ox_spi.cpp
+SRCS += ox_spimem_at.cpp
 SRCS += ox_stm32f4xx_spicfg.cpp
 # SRCS += ox_usart.cpp
 # SRCS += ox_stm32f4xx_usartcfg.cpp

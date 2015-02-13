@@ -118,15 +118,18 @@ class DevSPI : public DevBase {
    void     setData( uint16_t d ) { spi->DR = d; }
 
    int get_wait_count() const { return wait_count; };
+   int get_n_trans() const { return n_trans; };
    int wait_flag( uint16_t flg );
    int wait_nflag( uint16_t flg );
    int wait_TXE() { return wait_flag( SRF::TXE ); }
    int wait_RXNE() { return wait_flag( SRF::RXNE ); }
    int wait_N_BSY() { return wait_nflag( SRF::BSY ); }
 
-   uint16_t send1( uint16_t vs ); // all returns number of tranferred in last direction
+   // all returns number of tranferred in last direction
+   uint16_t send1x( uint16_t vs ); // pure send
    uint16_t recv1( uint16_t *vr );
    uint16_t send1_recv1( uint16_t vs, uint16_t *vr );
+   uint16_t send1b( uint8_t vs ) { return send1_recv1( (uint8_t)(vs), nullptr); }
    uint16_t send1_recvN_b( uint16_t vs, uint8_t *vr, int nr );
    uint16_t sendM_recvN_b( const uint8_t *vs, int ns, uint8_t *vr, int nr );
    uint16_t sendM_sendN_b( const uint8_t *vs0, int ns0, const uint8_t *vs1, int ns1 );
