@@ -180,7 +180,7 @@ uint16_t DevSPI::send1_recvN_b( uint16_t vs, uint8_t *vr, int nr )
 }
 
 
-uint16_t DevSPI::sendM_recvN_b( uint8_t *vs, int ns, uint8_t *vr, int nr )
+uint16_t DevSPI::sendM_recvN_b( const uint8_t *vs, int ns, uint8_t *vr, int nr )
 {
   n_trans = 0;
   if( cr1_init & CFG::DS_16b ) { return 0; }
@@ -205,5 +205,34 @@ uint16_t DevSPI::sendM_recvN_b( uint8_t *vs, int ns, uint8_t *vr, int nr )
   }
   return n_trans;
 }
+
+uint16_t DevSPI::sendM_sendN_b( const uint8_t *vs0, int ns0, const uint8_t *vs1, int ns1 )
+{
+  n_trans = 0;
+  if( cr1_init & CFG::DS_16b ) { return 0; }
+  if( !vs0 || ! vs1 ) { return 0; }
+
+  uint16_t t;
+  PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
+  for( int i=0; i<ns0; ++i ) {
+    if( ! wait_TXE() ) {  return 0;  }
+    spi->DR = *vs0++;
+    if( ! wait_RXNE() ) { return 0;  }
+    t = spi->DR; // old (fake)
+    ++n_trans;
+  }
+
+  for( int i=0; i<ns1; ++i ) {
+    if( ! wait_TXE() ) {  return 0;  }
+    spi->DR = *vs1++;
+    if( ! wait_RXNE() ) { return 0;  }
+    t = spi->DR; // old (fake)
+    ++n_trans;
+  }
+  ++t; // a-la use
+
+  return n_trans;
+}
+
 
 

@@ -128,7 +128,8 @@ class DevSPI : public DevBase {
    uint16_t recv1( uint16_t *vr );
    uint16_t send1_recv1( uint16_t vs, uint16_t *vr );
    uint16_t send1_recvN_b( uint16_t vs, uint8_t *vr, int nr );
-   uint16_t sendM_recvN_b( uint8_t *vs, int ns, uint8_t *vr, int nr );
+   uint16_t sendM_recvN_b( const uint8_t *vs, int ns, uint8_t *vr, int nr );
+   uint16_t sendM_sendN_b( const uint8_t *vs0, int ns0, const uint8_t *vs1, int ns1 );
 
   protected:
    uint16_t cr1_init;
