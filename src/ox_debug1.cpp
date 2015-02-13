@@ -254,7 +254,13 @@ int cmd_pvar( int argc, const char * const * argv )
 {
   uint8_t start = 0, end = N_USER_VARS;
   if( argc > 1 ) {
-    start = argv[1][0]-'a'; end = argv[1][1]-'a';
+    start = argv[1][0]-'a';
+    if( argv[1][1] >= 'a' ) {
+      end = argv[1][1]-'a';
+    } else {
+      end = 1;
+    }
+
   }
   if( end <= start ) {
     end = start+1;
