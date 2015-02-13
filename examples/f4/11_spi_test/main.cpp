@@ -35,29 +35,21 @@ QueueHandle_t smallrl_cmd_queue;
 SmallRL srl( smallrl_print, exec_queue );
 
 // --- local commands;
-int cmd_log_print( int argc, const char * const * argv );
-int cmd_log_reset( int argc, const char * const * argv );
+
 int cmd_test0( int argc, const char * const * argv );
+CmdInfo CMDINFO_TEST0 { "test0", 'T', cmd_test0, " - test something 0"  };
 
 int cmd_spiinfo( int argc, const char * const * argv );
+CmdInfo CMDINFO_SPIINFO { "spii", 'I', cmd_spiinfo,  "Outputs SPI regs" };
 
 int idle_flag = 0;
 
-CmdInfo global_cmds[] = {
-  CMDINFO_HELP,
-  CMDINFO_INFO,
-  CMDINFO_DUMP,
-  CMDINFO_FILL,
-  CMDINFO_ECHO,
-  CMDINFO_REBOOT,
-  CMDINFO_DIE,
-  { "lp",     0,  cmd_log_print,  "  - print log buffer" },
-  { "lr",     0,  cmd_log_reset,  "  - reset log buffer" },
-  CMDINFO_PVAR,
-  CMDINFO_SVAR,
-  { "test0", 'T', cmd_test0,      " - test something 0" },
-  { "spii",  'I', cmd_spiinfo,    "Outputs SPI regs" },
-  { 0, 0, 0, 0 }
+const CmdInfo* global_cmds[] = {
+  DEBUG_CMDS,
+
+  &CMDINFO_TEST0,
+  &CMDINFO_SPIINFO,
+  nullptr
 };
 
 
@@ -204,18 +196,6 @@ void smallrl_sigint(void)
 {
   leds.toggle( BIT3 );
   brk = 1;
-}
-
-int cmd_log_print( int argc UNUSED, const char * const * argv UNUSED )
-{
-  log_print();
-  return 0;
-}
-
-int cmd_log_reset( int argc UNUSED, const char * const * argv UNUSED )
-{
-  log_reset();
-  return 0;
 }
 
 void _exit( int rc )

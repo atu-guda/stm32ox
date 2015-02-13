@@ -48,6 +48,23 @@ int cmd_die( int argc, const char * const * argv );
 extern CmdInfo CMDINFO_DIE;
 int cmd_reboot( int argc, const char * const * argv );
 extern CmdInfo CMDINFO_REBOOT;
+int cmd_log_print( int argc, const char * const * argv );
+extern CmdInfo CMDINFO_LOG_PRINT;
+int cmd_log_reset( int argc, const char * const * argv );
+extern CmdInfo CMDINFO_LOG_RESET;
+
+#define DEBUG_CMDS \
+  &CMDINFO_HELP, \
+  &CMDINFO_INFO, \
+  &CMDINFO_DUMP, \
+  &CMDINFO_FILL, \
+  &CMDINFO_ECHO, \
+  &CMDINFO_REBOOT, \
+  &CMDINFO_DIE, \
+  &CMDINFO_LOG_PRINT, \
+  &CMDINFO_LOG_RESET, \
+  &CMDINFO_PVAR, \
+  &CMDINFO_SVAR \
 
 #ifdef __cplusplus
 }

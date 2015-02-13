@@ -166,14 +166,14 @@ int cmd_help( int argc UNUSED, const char * const * argv UNUSED)
 {
   pr( "commands:" NL );
   char b1[2]; b1[0] = b1[1] = 0;
-  for( int i=0; i<CMDS_NMAX; ++i ) {
-    if( global_cmds[i].name == 0 ) {
+  for( int i=0; global_cmds[i] && i<CMDS_NMAX; ++i ) {
+    if( global_cmds[i]->name == 0 ) {
       break;
     }
-    pr( global_cmds[i].name ); pr( " " );
-    pr( global_cmds[i].hint ); pr( " " );
-    if( global_cmds[i].acr != 0 ) {
-      pr( " (" ); b1[0] = global_cmds[i].acr; pr( b1 ); pr( ")" );
+    pr( global_cmds[i]->name ); pr( " " );
+    pr( global_cmds[i]->hint ); pr( " " );
+    if( global_cmds[i]->acr != 0 ) {
+      pr( " (" ); b1[0] = global_cmds[i]->acr; pr( b1 ); pr( ")" );
     }
     pr( NL );
   }
@@ -299,4 +299,18 @@ int cmd_reboot( int argc UNUSED, const char * const * argv UNUSED)
   return 0; // never ;-)
 }
 CmdInfo CMDINFO_REBOOT { "reboot", 0,  cmd_reboot,     " reboot system"  };
+
+int cmd_log_print( int argc UNUSED, const char * const * argv UNUSED )
+{
+  log_print();
+  return 0;
+}
+CmdInfo CMDINFO_LOG_PRINT { "lp", 0,  cmd_log_print, "  - print log buffer"  };
+
+int cmd_log_reset( int argc UNUSED, const char * const * argv UNUSED )
+{
+  log_reset();
+  return 0;
+}
+CmdInfo CMDINFO_LOG_RESET { "lr",     0,  cmd_log_reset,  "  - reset log buffer"  };
 

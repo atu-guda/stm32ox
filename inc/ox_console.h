@@ -15,14 +15,14 @@ void on_received_char( char c );
 typedef int (*CmdFun)(int argc, const char * const * argv );
 
 #define CMDS_NMAX 100
-typedef struct _CmdInfo
+struct CmdInfo
 {
   const char *name; //* full command name
   char acr;         //* acronym of command name, or 0
   CmdFun fun;       //* ptr to command
   const char *hint; //* help hint
-} CmdInfo;
-extern CmdInfo global_cmds[];
+};
+extern const CmdInfo* global_cmds[];
 
 
 int pr( const char *s ); // redefine in main to current output
