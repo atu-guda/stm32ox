@@ -39,8 +39,14 @@ SmallRL srl( smallrl_print, exec_queue );
 int cmd_test0( int argc, const char * const * argv );
 CmdInfo CMDINFO_TEST0 { "test0", 'T', cmd_test0, " - test something 0"  };
 
-int cmd_spiinfo( int argc, const char * const * argv );
-CmdInfo CMDINFO_SPIINFO { "spii", 'I', cmd_spiinfo,  "Outputs SPI regs" };
+int cmd_spi_info( int argc, const char * const * argv );
+CmdInfo CMDINFO_SPI_INFO { "spii", 'I', cmd_spi_info,  "- Outputs SPI regs" };
+
+int cmd_spi_send1( int argc, const char * const * argv );
+CmdInfo CMDINFO_SPI_SEND1 { "spi_s1", 0, cmd_spi_send1,  "- send value to SPI, show result" };
+
+int cmd_spi_send1rN( int argc, const char * const * argv );
+CmdInfo CMDINFO_SPI_SEND1RN { "spi_s1rn", 0, cmd_spi_send1rN,  " - send value to SPI, get N to gbuf_b" };
 
 int idle_flag = 0;
 
@@ -48,7 +54,9 @@ const CmdInfo* global_cmds[] = {
   DEBUG_CMDS,
 
   &CMDINFO_TEST0,
-  &CMDINFO_SPIINFO,
+  &CMDINFO_SPI_INFO,
+  &CMDINFO_SPI_SEND1,
+  &CMDINFO_SPI_SEND1RN,
   nullptr
 };
 
@@ -266,7 +274,7 @@ int cmd_test0( int argc, const char * const * argv )
   return 0;
 }
 
-int cmd_spiinfo( int argc UNUSED, const char * const * argv UNUSED )
+int cmd_spi_info( int argc UNUSED, const char * const * argv UNUSED )
 {
   auto s = spi1.getDev();
   pr_sh( "spi= ", (uint32_t)(s) );
@@ -277,5 +285,38 @@ int cmd_spiinfo( int argc UNUSED, const char * const * argv UNUSED )
   return 0;
 }
 
+int cmd_spi_send1( int argc, const char * const * argv )
+{
+  uint16_t v0 = 0, r0 = 0;
+  if( argc > 1 ) {
+    v0 = (uint8_t)strtol( argv[1], 0, 0 );
+  }
+  pr( NL "Send 1 byte to SPI: v0= " ); pr_h( v0 ); pr( NL );
+  int nt = spi1.send1_recv1( v0, &r0 );
+  pr_sdx( nt );
+  pr_shx( r0 );
+
+  return 0;
+}
+
+int cmd_spi_send1rN( int argc, const char * const * argv )
+{
+  uint8_t v0 = 0;
+  int n = 1;
+  if( argc > 1 ) {
+    v0 = (uint8_t)strtol( argv[1], 0, 0 );
+  }
+  if( argc > 2 ) {
+    n = strtol( argv[2], 0, 0 );
+  }
+  if( n >= GBUF_SZ ) { n = GBUF_SZ-1; }
+  pr( NL "Send 1 byte to SPI: v0= " ); pr_h( v0 ); pr_sdx( n ); pr( NL );
+
+  int nt = spi1.send1_recvN_b( v0, (uint8_t*)(gbuf_b), n );
+  pr_sdx( nt );
+  dump8( gbuf_b, n );
+
+  return 0;
+}
 
 // vim: path=.,/usr/share/stm32lib/inc/,/usr/arm-none-eabi/include,ox/inc,ox/inc/usb_cdc
