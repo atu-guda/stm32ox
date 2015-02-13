@@ -31,14 +31,23 @@ void print_user_var( int idx );
 
 // common commands:
 int cmd_info( int argc, const char * const * argv );
+extern CmdInfo CMDINFO_INFO;
 int cmd_echo( int argc, const char * const * argv );
+extern CmdInfo CMDINFO_ECHO;
 int cmd_help( int argc, const char * const * argv );
+extern CmdInfo CMDINFO_HELP;
 int cmd_dump( int argc, const char * const * argv );
+extern CmdInfo CMDINFO_DUMP;
 int cmd_fill( int argc, const char * const * argv );
+extern CmdInfo CMDINFO_FILL;
 int cmd_pvar( int argc, const char * const * argv );
+extern CmdInfo CMDINFO_PVAR;
 int cmd_svar( int argc, const char * const * argv );
+extern CmdInfo CMDINFO_SVAR;
 int cmd_die( int argc, const char * const * argv );
+extern CmdInfo CMDINFO_DIE;
 int cmd_reboot( int argc, const char * const * argv );
+extern CmdInfo CMDINFO_REBOOT;
 
 #ifdef __cplusplus
 }

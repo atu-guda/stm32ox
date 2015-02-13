@@ -44,18 +44,18 @@ int cmd_spiinfo( int argc, const char * const * argv );
 int idle_flag = 0;
 
 CmdInfo global_cmds[] = {
-  { "help",  'h', cmd_help,       " - List of commands and arguments" },
-  { "info",  'i', cmd_info,       " - Output general info" },
-  { "dump",  'd', cmd_dump,       " {a|b|addr} [n] - HexDumps given area" },
-  { "fill",  'f', cmd_fill,       " {a|b|addr} val [n] [stp] - Fills memory by value" },
-  { "echo",  'e', cmd_echo,       " [args] - output args" },
-  { "reboot", 0,  cmd_reboot,     " reboot system" },
-  { "die",    0,  cmd_die,        " [val] - die with value" },
+  CMDINFO_HELP,
+  CMDINFO_INFO,
+  CMDINFO_DUMP,
+  CMDINFO_FILL,
+  CMDINFO_ECHO,
+  CMDINFO_REBOOT,
+  CMDINFO_DIE,
   { "lp",     0,  cmd_log_print,  "  - print log buffer" },
   { "lr",     0,  cmd_log_reset,  "  - reset log buffer" },
+  CMDINFO_PVAR,
+  CMDINFO_SVAR,
   { "test0", 'T', cmd_test0,      " - test something 0" },
-  { "print", 'p', cmd_pvar,       "name - print user var a-z" },
-  { "set",   's', cmd_svar,       "name value - set var a-z" },
   { "spii",  'I', cmd_spiinfo,    "Outputs SPI regs" },
   { 0, 0, 0, 0 }
 };

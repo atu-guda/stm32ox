@@ -149,6 +149,7 @@ int cmd_info( int argc UNUSED, const char * const * argv UNUSED )
   // pr_sdx( tick_count );
   return 0;
 }
+CmdInfo CMDINFO_INFO {  "info",  'i', cmd_info,       " - Output general info" };
 
 int cmd_echo( int argc, const char * const * argv )
 {
@@ -159,6 +160,7 @@ int cmd_echo( int argc, const char * const * argv )
   }
   return 0;
 }
+CmdInfo CMDINFO_ECHO { "echo",  'e', cmd_echo,       " [args] - output args" };
 
 int cmd_help( int argc UNUSED, const char * const * argv UNUSED)
 {
@@ -177,6 +179,7 @@ int cmd_help( int argc UNUSED, const char * const * argv UNUSED)
   }
   return 0;
 }
+CmdInfo CMDINFO_HELP { "help",  'h', cmd_help, " - List of commands and arguments"  };
 
 int cmd_dump( int argc, const char * const * argv )
 {
@@ -200,6 +203,7 @@ int cmd_dump( int argc, const char * const * argv )
   dump8( addr, n );
   return 0;
 }
+CmdInfo CMDINFO_DUMP { "dump",  'd', cmd_dump, " {a|b|addr} [n] - HexDumps given area"  };
 
 int cmd_fill( int argc, const char * const * argv )
 {
@@ -244,6 +248,7 @@ int cmd_fill( int argc, const char * const * argv )
   pr( NL "---------- done---------------" NL );
   return 0;
 }
+CmdInfo CMDINFO_FILL { "fill",  'f', cmd_fill, " {a|b|addr} val [n] [stp] - Fills memory by value"  };
 
 int cmd_pvar( int argc, const char * const * argv )
 {
@@ -260,6 +265,7 @@ int cmd_pvar( int argc, const char * const * argv )
   }
   return 0;
 }
+CmdInfo CMDINFO_PVAR { "print", 'p', cmd_pvar, "name - print user var a-z"  };
 
 int cmd_svar( int argc, const char * const * argv )
 {
@@ -273,6 +279,7 @@ int cmd_svar( int argc, const char * const * argv )
   user_vars[idx] = strtol( argv[2], 0, 0 );
   return 0;
 }
+CmdInfo CMDINFO_SVAR { "set", 's', cmd_svar,  "name value - set var a-z"  };
 
 
 int cmd_die( int argc, const char * const * argv )
@@ -284,10 +291,12 @@ int cmd_die( int argc, const char * const * argv )
   die4led( v );
   return 0; // never ;-)
 }
+CmdInfo CMDINFO_DIE { "die",    0,  cmd_die, " [val] - die with value"  };
 
 int cmd_reboot( int argc UNUSED, const char * const * argv UNUSED)
 {
   NVIC_SystemReset();
   return 0; // never ;-)
 }
+CmdInfo CMDINFO_REBOOT { "reboot", 0,  cmd_reboot,     " reboot system"  };
 
