@@ -88,7 +88,7 @@ int brk = 0;
 using SCF = DevSPI::CFG;
 DevSPI spi1( &SPI1Conf1, &SPIMode_Duplex_Master_NSS_Soft,
       SCF::L2_DUPLEX | SCF::DS_8b | SCF::CPOL_LOW | SCF::CHPAL_1E
-    | SCF::NSS_SOFT | SCF::MSB_FIRST | SCF::BRP_256 ); // SCF::BRP_256
+    | SCF::NSS_SOFT | SCF::MSB_FIRST | SCF::BRP_2 ); // SCF::BRP_256
 
 int main(void)
 {
@@ -126,6 +126,7 @@ void task_main( void *prm UNUSED ) // TMAIN
   usbotg.init( &USR_desc, &USBD_CDC_cb, &USR_cb );
   // i2c_d.init();
   delay_ms( 10 );
+  // spi1.set_inv_nss( true );
   spi1.initHW();
   spi1.init();
   spi1.enable();

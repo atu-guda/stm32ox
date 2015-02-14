@@ -112,6 +112,9 @@ class DevSPI : public DevBase {
    void enable()     { spi->CR1 |= (uint16_t)( CR1F::SPE); };
    void disable()    { spi->CR1 &= (uint16_t)(~CR1F::SPE); };
    void set_crc_poly( uint16_t v ) { crc_poly = v; }
+   void set_inv_nss( bool v ) { inv_nss = v; }
+   void nss_off();
+   void nss_on();
    uint16_t getCR1() { return spi->CR1; }
    uint16_t getSR()  { return spi->SR; }
    uint16_t getData() { return spi->DR; }
@@ -139,6 +142,7 @@ class DevSPI : public DevBase {
    uint16_t cr1_init;
    SPI_TypeDef *spi;
    uint16_t crc_poly = 7;
+   bool inv_nss = false;
    int maxWait = 5000;
    void (*wait_fun)() = taskYieldFun;
    int wait_count = 0;

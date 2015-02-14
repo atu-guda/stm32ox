@@ -57,6 +57,8 @@ DevMode SPIMode_Duplex_Slave_NSS_Soft = {
 
 // -------------------------------------------------
 
+#define NSS_HOLDER PinHold ph( &( cfg->pins[pinnum_NSS] ), inv_nss, ! (cr1_init & CFG::NSS_SOFT ) )
+
 DevSPI::DevSPI( const DevConfig *dconf, const DevMode *dmode, uint16_t a_cr1_init )
      : DevBase( dconf, dmode ),
        cr1_init( a_cr1_init | dmode->mode ),
@@ -73,20 +75,39 @@ void DevSPI::init()
   spi->CR1 = t;
   spi->I2SCFGR &= (uint16_t)~SPI_I2SCFGR_I2SMOD;
   spi->CRCPR   = crc_poly;
-  // TODO: soft nss ctl
-  if( cr1_init && CFG::NSS_SOFT ) {
-    pin_set( &( cfg->pins[pinnum_NSS] ) );
-  }
+  nss_off();
   err = 0; n_trans = 0;
 }
 
 void DevSPI::deInit()
 {
   SPI_DeInit( spi );
-  if( cr1_init && CFG::NSS_SOFT ) {
+  nss_off();
+};
+
+void DevSPI::nss_off()
+{
+  if( ! ( cr1_init & CFG::NSS_SOFT  ) ) {
+    return;
+  }
+  if( inv_nss ) {
+    pin_reset( &( cfg->pins[pinnum_NSS] ) );
+  } else {
     pin_set( &( cfg->pins[pinnum_NSS] ) );
   }
-};
+}
+
+void DevSPI::nss_on()
+{
+  if( ! ( cr1_init & CFG::NSS_SOFT  ) ) {
+    return;
+  }
+  if( inv_nss ) {
+    pin_set( &( cfg->pins[pinnum_NSS] ) );
+  } else {
+    pin_reset( &( cfg->pins[pinnum_NSS] ) );
+  }
+}
 
 int DevSPI::wait_flag( uint16_t flg )
 {
@@ -114,12 +135,13 @@ int DevSPI::wait_nflag( uint16_t flg )
 int DevSPI::send1x( uint16_t vs )
 {
   n_trans = 0;
-  PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
+  NSS_HOLDER;
   if( ! wait_TXE() ) {
     return 0;
   }
   spi->DR = vs;
   n_trans = 1;
+  delay_bad_ms(10);
   return 1;
 }
 
@@ -127,7 +149,7 @@ int DevSPI::send1x( uint16_t vs )
 int DevSPI::recv1( uint16_t *vr )
 {
   n_trans = 0;
-  PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
+  NSS_HOLDER;
   if( ! wait_TXE() ) {  return 0;  }
   spi->DR = 0x55;
   if( ! wait_TXE() ) {  return 0;  }
@@ -141,7 +163,7 @@ int DevSPI::recv1( uint16_t *vr )
 int DevSPI::send1_recv1( uint16_t vs, uint16_t *vr )
 {
   n_trans = 0;
-  PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
+  NSS_HOLDER;
   if( ! wait_TXE() ) {  return 0;  }
   spi->DR = vs;
   if( ! wait_TXE() ) {  return 0;  }
@@ -161,8 +183,9 @@ int DevSPI::send1_recvN_b( uint16_t vs, uint8_t *vr, int nr )
   n_trans = 0;
   if( cr1_init & CFG::DS_16b ) { return 0; }
 
-  PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
+  NSS_HOLDER;
   if( ! wait_TXE() ) {  return 0;  }
+
   spi->DR = vs;
   // if( ! wait_TXE() ) {  return 0;  }
   if( ! wait_RXNE() ) { return 0;  }
@@ -187,7 +210,8 @@ int DevSPI::sendM_recvN_b( const uint8_t *vs, int ns, uint8_t *vr, int nr )
   if( !vs ) { return 0; }
 
   uint16_t t;
-  PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
+  NSS_HOLDER;
+
   for( int i=0; i<ns; ++i ) {
     if( ! wait_TXE() ) {  return 0;  }
     spi->DR = *vs++;
@@ -213,7 +237,8 @@ int DevSPI::sendM_sendN_b( const uint8_t *vs0, int ns0, const uint8_t *vs1, int 
   if( !vs0 || ( ns1 !=0 && ! vs1 ) ) { return 0; }
 
   uint16_t t;
-  PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
+  NSS_HOLDER;
+
   for( int i=0; i<ns0; ++i ) {
     if( ! wait_TXE() ) {  return 0;  }
     spi->DR = *vs0++;
@@ -242,7 +267,7 @@ int DevSPI::duplexN_b( const uint8_t *vs, int ns, uint8_t *vr )
   if( cr1_init & CFG::DS_16b ) { return 0; }
   if( !vs || ! vr ) { return 0; }
 
-  PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
+  NSS_HOLDER;
 
   for( int i=0; i<=ns; ++i ) { // <= SIC! one more byte
     if( ! wait_TXE() ) {  return 0;  }
