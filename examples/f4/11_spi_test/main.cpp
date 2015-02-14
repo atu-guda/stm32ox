@@ -45,8 +45,14 @@ CmdInfo CMDINFO_SPI_INFO { "spii", 'I', cmd_spi_info,  "- Outputs SPI regs" };
 int cmd_spi_send1( int argc, const char * const * argv );
 CmdInfo CMDINFO_SPI_SEND1 { "spi_s1", 0, cmd_spi_send1,  "- send value to SPI, show result" };
 
+int cmd_spi_send1x( int argc, const char * const * argv );
+CmdInfo CMDINFO_SPI_SEND1X { "spi_s1x", 0, cmd_spi_send1x,  "- send value to SPI, w/o result" };
+
 int cmd_spi_send1rN( int argc, const char * const * argv );
 CmdInfo CMDINFO_SPI_SEND1RN { "spi_s1rn", 0, cmd_spi_send1rN,  " - send value to SPI, get N to gbuf_b" };
+
+int cmd_spi_duplexN( int argc, const char * const * argv );
+CmdInfo CMDINFO_SPI_DUPLEXN { "spi_dn", 0, cmd_spi_duplexN,  " - send N from gbuf_a, recv to gbuf_b" };
 
 int idle_flag = 0;
 
@@ -56,7 +62,9 @@ const CmdInfo* global_cmds[] = {
   &CMDINFO_TEST0,
   &CMDINFO_SPI_INFO,
   &CMDINFO_SPI_SEND1,
+  &CMDINFO_SPI_SEND1X,
   &CMDINFO_SPI_SEND1RN,
+  &CMDINFO_SPI_DUPLEXN,
   nullptr
 };
 
@@ -80,7 +88,7 @@ int brk = 0;
 using SCF = DevSPI::CFG;
 DevSPI spi1( &SPI1Conf1, &SPIMode_Duplex_Master_NSS_Soft,
       SCF::L2_DUPLEX | SCF::DS_8b | SCF::CPOL_LOW | SCF::CHPAL_1E
-    | SCF::NSS_SOFT | SCF::MSB_FIRST | SCF::BRP_4 ); // SCF::BRP_256
+    | SCF::NSS_SOFT | SCF::MSB_FIRST | SCF::BRP_256 ); // SCF::BRP_256
 
 int main(void)
 {
@@ -299,6 +307,20 @@ int cmd_spi_send1( int argc, const char * const * argv )
   return 0;
 }
 
+int cmd_spi_send1x( int argc, const char * const * argv )
+{
+  uint16_t v0 = 0;
+  if( argc > 1 ) {
+    v0 = (uint8_t)strtol( argv[1], 0, 0 );
+  }
+  pr( NL "Send 1 byte to SPI: v0= " ); pr_h( v0 ); pr( NL );
+  int nt = spi1.send1x( v0 );
+  pr_sdx( nt );
+
+  return 0;
+}
+
+
 int cmd_spi_send1rN( int argc, const char * const * argv )
 {
   uint8_t v0 = 0;
@@ -317,6 +339,23 @@ int cmd_spi_send1rN( int argc, const char * const * argv )
   dump8( gbuf_b, n );
 
   return 0;
+}
+
+int cmd_spi_duplexN( int argc, const char * const * argv )
+{
+  int n = 1;
+  if( argc > 1 ) {
+    n = strtol( argv[1], 0, 0 );
+  }
+  if( n >= GBUF_SZ ) { n = GBUF_SZ-1; }
+  pr( NL "Send/recv N byte via SPI: " ); pr_sdx( n ); pr( NL );
+
+  int nt = spi1.duplexN_b( (const uint8_t*)(gbuf_a), n, (uint8_t*)(gbuf_b) );
+  pr_sdx( nt );
+  dump8( gbuf_b, n );
+
+  return 0;
+
 }
 
 // vim: path=.,/usr/share/stm32lib/inc/,/usr/arm-none-eabi/include,ox/inc,ox/inc/usb_cdc

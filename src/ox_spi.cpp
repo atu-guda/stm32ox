@@ -111,7 +111,7 @@ int DevSPI::wait_nflag( uint16_t flg )
   return 0;
 }
 
-uint16_t DevSPI::send1x( uint16_t vs )
+int DevSPI::send1x( uint16_t vs )
 {
   n_trans = 0;
   PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
@@ -124,7 +124,7 @@ uint16_t DevSPI::send1x( uint16_t vs )
 }
 
 
-uint16_t DevSPI::recv1( uint16_t *vr )
+int DevSPI::recv1( uint16_t *vr )
 {
   n_trans = 0;
   PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
@@ -138,7 +138,7 @@ uint16_t DevSPI::recv1( uint16_t *vr )
 }
 
 
-uint16_t DevSPI::send1_recv1( uint16_t vs, uint16_t *vr )
+int DevSPI::send1_recv1( uint16_t vs, uint16_t *vr )
 {
   n_trans = 0;
   PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
@@ -156,7 +156,7 @@ uint16_t DevSPI::send1_recv1( uint16_t vs, uint16_t *vr )
 }
 
 
-uint16_t DevSPI::send1_recvN_b( uint16_t vs, uint8_t *vr, int nr )
+int DevSPI::send1_recvN_b( uint16_t vs, uint8_t *vr, int nr )
 {
   n_trans = 0;
   if( cr1_init & CFG::DS_16b ) { return 0; }
@@ -180,7 +180,7 @@ uint16_t DevSPI::send1_recvN_b( uint16_t vs, uint8_t *vr, int nr )
 }
 
 
-uint16_t DevSPI::sendM_recvN_b( const uint8_t *vs, int ns, uint8_t *vr, int nr )
+int DevSPI::sendM_recvN_b( const uint8_t *vs, int ns, uint8_t *vr, int nr )
 {
   n_trans = 0;
   if( cr1_init & CFG::DS_16b ) { return 0; }
@@ -206,11 +206,11 @@ uint16_t DevSPI::sendM_recvN_b( const uint8_t *vs, int ns, uint8_t *vr, int nr )
   return n_trans;
 }
 
-uint16_t DevSPI::sendM_sendN_b( const uint8_t *vs0, int ns0, const uint8_t *vs1, int ns1 )
+int DevSPI::sendM_sendN_b( const uint8_t *vs0, int ns0, const uint8_t *vs1, int ns1 )
 {
   n_trans = 0;
   if( cr1_init & CFG::DS_16b ) { return 0; }
-  if( !vs0 || ! vs1 ) { return 0; }
+  if( !vs0 || ( ns1 !=0 && ! vs1 ) ) { return 0; }
 
   uint16_t t;
   PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
@@ -233,6 +233,36 @@ uint16_t DevSPI::sendM_sendN_b( const uint8_t *vs0, int ns0, const uint8_t *vs1,
 
   return n_trans;
 }
+
+
+
+int DevSPI::duplexN_b( const uint8_t *vs, int ns, uint8_t *vr )
+{
+  n_trans = 0;
+  if( cr1_init & CFG::DS_16b ) { return 0; }
+  if( !vs || ! vr ) { return 0; }
+
+  PinHold ph( &( cfg->pins[pinnum_NSS] ), false, ! (cr1_init & CFG::NSS_SOFT ) );
+
+  for( int i=0; i<=ns; ++i ) { // <= SIC! one more byte
+    if( ! wait_TXE() ) {  return 0;  }
+    uint8_t sb = 0;
+    if( i != ns ) {
+      sb = *vs++;
+    }
+    spi->DR = sb;
+    if( ! wait_RXNE() ) { return 0;  }
+    uint8_t rb = spi->DR;
+    if( i !=0 ) {
+      *vr++ = rb;
+    }
+    ++n_trans;
+  }
+
+
+  return n_trans;
+}
+
 
 
 

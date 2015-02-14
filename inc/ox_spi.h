@@ -126,13 +126,14 @@ class DevSPI : public DevBase {
    int wait_N_BSY() { return wait_nflag( SRF::BSY ); }
 
    // all returns number of tranferred in last direction
-   uint16_t send1x( uint16_t vs ); // pure send
-   uint16_t recv1( uint16_t *vr );
-   uint16_t send1_recv1( uint16_t vs, uint16_t *vr );
-   uint16_t send1b( uint8_t vs ) { return send1_recv1( (uint8_t)(vs), nullptr); }
-   uint16_t send1_recvN_b( uint16_t vs, uint8_t *vr, int nr );
-   uint16_t sendM_recvN_b( const uint8_t *vs, int ns, uint8_t *vr, int nr );
-   uint16_t sendM_sendN_b( const uint8_t *vs0, int ns0, const uint8_t *vs1, int ns1 );
+   int send1x( uint16_t vs ); // pure send
+   int recv1( uint16_t *vr );
+   int send1_recv1( uint16_t vs, uint16_t *vr );
+   int send1b( uint8_t vs ) { return send1_recv1( (uint8_t)(vs), nullptr); }
+   int send1_recvN_b( uint16_t vs, uint8_t *vr, int nr );
+   int sendM_recvN_b( const uint8_t *vs, int ns, uint8_t *vr, int nr );
+   int sendM_sendN_b( const uint8_t *vs0, int ns0, const uint8_t *vs1, int ns1 );
+   int duplexN_b( const uint8_t *vs, int ns, uint8_t *vr1 ); // send 1 byte more
 
   protected:
    uint16_t cr1_init;
