@@ -33,9 +33,10 @@ SmallRL srl( smallrl_print, exec_queue );
 
 // --- local commands;
 int cmd_test0( int argc, const char * const * argv );
-CmdInfo CMDINFO_TEST0 { "test0", 'T', cmd_test0, " - test something 0"  };
+CmdInfo CMDINFO_TEST0 { "test0", 'T', cmd_test0, " - test rotate (N [-])"  };
 
 int idle_flag = 0;
+int brk = 0;
 
 const CmdInfo* global_cmds[] = {
   DEBUG_CMDS,
@@ -51,7 +52,7 @@ extern "C" {
 void task_main( void *prm UNUSED );
 void task_leds( void *prm UNUSED );
 
-void task_motor( void *prm UNUSED );
+// void task_motor( void *prm UNUSED );
 
 }
 
@@ -62,13 +63,31 @@ void on_received_char( char c );
 
 PinsOut motor( &gpio_e, 0, 4 ); // E0-E3
 
+const uint8_t half_steps4[] = { 1, 3, 2, 6, 4, 12, 8, 9 };
+const uint8_t full_steps4[] = { 1, 2, 4, 8 };
+const uint8_t half_steps3[] = { 1, 3, 2, 6, 4, 5 };
+
+struct MotorMode {
+  int n_steps;
+  const uint8_t *steps;
+};
+
+MotorMode m_modes[] = {
+  { 8, half_steps4 },
+  { 4, full_steps4 },
+  { 6, half_steps3 }, // 3-phase modes
+  { 3, full_steps4 }  // part of 4-phase
+};
+const int n_modes = sizeof(m_modes)/sizeof(MotorMode);
+
 int main(void)
 {
   leds.initHW();
   motor.initHW();
 
   user_vars['t'-'a'] = 100; // step time
-  user_vars['d'-'a'] = 1;   // direction
+  user_vars['m'-'a'] = 0;   // mode
+  user_vars['s'-'a'] = 0;   // sleep
 
   NVIC_SetPriorityGrouping( NVIC_PriorityGroup_4 );
 
@@ -86,7 +105,7 @@ int main(void)
   xTaskCreate( task_usbotgfscdc_recv, "urecv", 2*def_stksz, 0, 2, 0 );
   xTaskCreate( task_main, "main", 2 * def_stksz, 0, 1, 0 );
   xTaskCreate( task_smallrl_cmd, "smallrl_cmd", def_stksz, 0, 1, 0 );
-  xTaskCreate( task_motor, "motor", def_stksz, 0, 1, 0 );
+  // xTaskCreate( task_motor, "motor", def_stksz, 0, 1, 0 );
 
   // usbotg.initHW(); // not req - by callback USB_OTG_BSP_Init
 
@@ -130,6 +149,8 @@ void task_leds( void *prm UNUSED )
   }
   vTaskDelete(0);
 }
+
+// -- OS ------------------------------------------------------
 
 
 STD_OTG_FS_IRQ( usbotg );
@@ -179,6 +200,7 @@ void on_received_char( char c )
 
 void smallrl_sigint(void)
 {
+  brk = 1;
   leds.toggle( BIT3 );
   user_vars['o'-'a'] = 0;
 }
@@ -188,49 +210,79 @@ void _exit( int rc )
   die4led( rc & 0x0F );
 }
 
+// ---------------------------------------------------------------------
+
 
 // TEST0
 int cmd_test0( int argc, const char * const * argv )
 {
-  int a1 = 0;
+  static int ph = 0;
+  int n = 0;
   if( argc > 1 ) {
-    a1 = strtol( argv[1], 0, 0 );
+    n = strtol( argv[1], 0, 0 );
   }
-  pr( NL "Test0: a1= " ); pr_d( a1 ); pr( NL );
+  if( n < 1 ) {
+    motor.write( 0 );
+    ph = 0;
+    pr( NL "Motor off." NL );
+    return 0;
+  }
 
-  int prty = uxTaskPriorityGet( 0 );
-  pr_sdx( prty );
-  const char *nm = pcTaskGetTaskName( 0 );
-  pr( "name: \"" ); pr( nm ); pr( "\"" NL );
+  int m = user_vars['m'-'a'];
+  if( m >= n_modes ) {
+    m = 0;
+  }
+  const uint8_t *steps = m_modes[m].steps;
+  int ns = m_modes[m].n_steps;
+  if( ph >= ns ||  ph < 0 ) { ph = 0; }
 
+  int t1 =  user_vars['t'-'a'];
+  int t2 =  user_vars['s'-'a'];
 
-  // log_add( "Test0 " );
+  int d = 1;
+  if( argc > 2  && argv[2][0] == '-' ) {
+    d = ns - 1; // % no zero
+  }
 
+  pr( NL "Test0: n= " ); pr_d( n ); pr( " ph= "); pr_d( ph ); pr( NL );
 
-  pr( NL "delay start..." );
-  delay_ms( 5000 );
-  pr( NL "...delay end" NL );
+  for( int i=0; i<n && !brk; ++i ) {
+    if( t1 > 500 ) {
+      pr( "Phase= " ); pr_d( ph ); pr( "  val= " ); pr_h( steps[ph] ); pr( NL );
+    }
+
+    motor.write( steps[ph] );
+    delay_ms( t1 );
+    if( t2 > 0 ) {
+      motor.write( 0 );
+      delay_ms( t2 );
+    }
+    ph += d;
+    ph %= ns;
+  }
+
 
   pr( NL "test0 end." NL );
+  brk = 0;
   return 0;
 }
 
-void task_motor( void *prm UNUSED )
-{
-  static const uint8_t hsteps[] = { 1, 3, 2, 6, 4, 12, 8, 9 };
-  int i=0;
-  while(1) {
-    if( user_vars['o'-'a'] ) { // run
-      motor.write( hsteps[i] );
-      delay_ms( user_vars['t'-'a'] );
-      i += user_vars['d'-'a'];
-      if( i < 0 ) { i = 7; }
-      if( i >= 8 ) { i = 0; }
-    } else { // stop
-      motor.write( 0 );
-      delay_ms( 1000 );
-    }
-  };
-}
+// void task_motor( void *prm UNUSED )
+// {
+//   static const uint8_t hsteps[] = { 1, 3, 2, 6, 4, 12, 8, 9 };
+//   int i=0;
+//   while(1) {
+//     if( user_vars['o'-'a'] ) { // run
+//       motor.write( hsteps[i] );
+//       delay_ms( user_vars['t'-'a'] );
+//       i += user_vars['d'-'a'];
+//       if( i < 0 ) { i = 7; }
+//       if( i >= 8 ) { i = 0; }
+//     } else { // stop
+//       motor.write( 0 );
+//       delay_ms( 1000 );
+//     }
+//   };
+// }
 
 // vim: path=.,/usr/share/stm32lib/inc/,/usr/arm-none-eabi/include,ox/inc,ox/inc/usb_cdc
