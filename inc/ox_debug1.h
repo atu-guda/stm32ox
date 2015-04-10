@@ -1,6 +1,7 @@
 #ifndef _OX_DEBUG1_H
 #define _OX_DEBUG1_H
 
+#include <ox_gpio.h>
 #include <ox_console.h>
 
 #ifdef __cplusplus

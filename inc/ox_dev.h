@@ -3,22 +3,6 @@
 
 #include <ox_base.h>
 
-#if defined STM32F1
- #define SET_BIT_REG   BSRR
- #define RESET_BIT_REG BRR
-#elif defined STM32F2
- #define SET_BIT_REG   BSRRL
- #define RESET_BIT_REG BSRRH
-#elif defined STM32F3
- #define SET_BIT_REG   BSRR
- #define RESET_BIT_REG BRR
-#elif defined STM32F4
- #define SET_BIT_REG   BSRRL
- #define RESET_BIT_REG BSRRH
-#else
- #error "Undefined MC type"
-#endif // STM32Fxxx
-
 
 extern reg32 *const RCC_enr[RCC_Bus::RCC_NBUS];
 

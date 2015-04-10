@@ -1,3 +1,10 @@
+#ifdef USE_FREERTOS
+#include <FreeRTOS.h>
+#include <task.h>
+#include <queue.h>
+#include <stdlib.h>
+#endif
+
 #include <ox_gpio.h>
 
 #ifdef STM32F1
@@ -30,5 +37,18 @@ void PinsOut::initHW()
   }
   devPinsConf( gpio, pinMode_Out_PP, mask );
 };
+
+void die4led( uint16_t n )
+{
+  #ifdef USE_FREERTOS
+  taskDISABLE_INTERRUPTS();
+  #endif
+
+  leds.set( n );
+  while(1) {
+    delay_bad_ms( 100 );
+    leds.toggle( BIT0 );
+  }
+}
 
 // vim: path=.,/usr/share/stm32lib/inc

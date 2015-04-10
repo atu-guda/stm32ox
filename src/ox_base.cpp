@@ -1,5 +1,3 @@
-#include <errno.h>
-
 #ifdef USE_FREERTOS
 #include <FreeRTOS.h>
 #include <task.h>
@@ -62,25 +60,23 @@ uint8_t numFirstBit( uint32_t a )
 void taskYieldFun()
 {
   #ifdef USE_FREERTOS
-    taskYIELD();
+    if( xTaskGetSchedulerState() == taskSCHEDULER_RUNNING ) {
+      taskYIELD();
+    } else {
+      delay_bad_mcs( 100 );
+    }
   #else
     delay_mcs( 100 );
   #endif
 }
 
 
-void die4led( uint16_t n )
+void die( uint16_t n )
 {
-  #ifdef BOARD_N_LEDS
-    leds.set( n );
-    while(1) {
-      delay_bad_ms( 200 );
-      leds.toggle( BIT0 );
-    }
-  }
-  #else
-  while(1) { delay_bad_ms( n*200 ); /* NOP */ };
+  #ifdef USE_FREERTOS
+  taskDISABLE_INTERRUPTS();
   #endif
+  while(1) { delay_bad_ms( n*200 ); /* NOP */ };
 }
 
 void GPIO_WriteBits( GPIO_TypeDef* GPIOx, uint16_t PortVal, uint16_t mask )
@@ -100,7 +96,11 @@ void delay_bad_mcs( uint32_t mcs )
 void delay_ms( uint32_t ms )
 {
   #ifdef USE_FREERTOS
-  vTaskDelay( ms / portTICK_RATE_MS );
+  if( xTaskGetSchedulerState() == taskSCHEDULER_RUNNING ) {
+    vTaskDelay( ms / ( ( TickType_t ) 1000 / configTICK_RATE_HZ ) );
+  } else {
+    delay_bad_ms( ms );
+  }
   #else
   delay_bad_ms( ms );
   #endif
@@ -139,7 +139,6 @@ void delay_mcs( uint32_t mcs )
   if( mcs_r )
     delay_bad_mcs( mcs_r );
 }
-
 
 
 
@@ -196,5 +195,4 @@ char* i2dec( int n, char *s )
   while( ( *bufptr++ = *--tmpptr ) != '\0' ) /* NOP */;
   return s;
 }
-
 

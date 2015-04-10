@@ -4,12 +4,24 @@
 
 #if defined (STM32F1)
   #include "stm32f10x_conf.h"
+ #define SET_BIT_REG   BSRR
+ #define RESET_BIT_REG BRR
+ #define NVIC_FOR_FREERTOS NVIC_SetPriorityGrouping( NVIC_PriorityGroup_4 );
 #elif defined (STM32F2)
   #include "stm32f2xx_conf.h"
+ #define SET_BIT_REG   BSRRL
+ #define RESET_BIT_REG BSRRH
+ #define NVIC_FOR_FREERTOS NVIC_SetPriorityGrouping( NVIC_PriorityGroup_4 );
 #elif defined (STM32F3)
   #include "stm32f30x_conf.h"
+ #define SET_BIT_REG   BSRR
+ #define RESET_BIT_REG BRR
+ #define NVIC_FOR_FREERTOS NVIC_SetPriorityGrouping( NVIC_PriorityGroup_4 );
 #elif defined (STM32F4)
   #include "stm32f4xx_conf.h"
+ #define SET_BIT_REG   BSRRL
+ #define RESET_BIT_REG BSRRH
+ #define NVIC_FOR_FREERTOS NVIC_SetPriorityGrouping( NVIC_PriorityGroup_4 );
 #else
   #error "Unsupported MCU"
 #endif
@@ -20,9 +32,6 @@
 
 #define UNUSED __attribute__((unused))
 
-#ifdef __cplusplus
- extern "C" {
-#endif
 
 #define PORT_BITS 16
 #define BIT0  0x0001
@@ -49,8 +58,6 @@ typedef const char *const ccstr;
 
 #define ARR_SZ(x) (sizeof(x) / sizeof(x[0]))
 #define ARR_AND_SZ(x) x, (sizeof(x) / sizeof(x[0]))
-
-void taskYieldFun(void);
 
 
 // timings for bad loop delays TODO: for other too
@@ -81,8 +88,18 @@ void taskYieldFun(void);
   #define T_S_MUL   33845000
 #endif
 
-// local board functions
-void die4led( uint16_t n );
+#ifdef __cplusplus
+template<typename T> class _ShowType; // to output decucted type
+                                      // _ShowType< decltype(XXXX) > xType;
+ extern "C" {
+#endif
+
+// void die4led( uint16_t n );
+void taskYieldFun(void);
+void vApplicationIdleHook(void);
+void vApplicationTickHook(void);
+// misc functions
+void die( uint16_t n );
 void delay_ms( uint32_t ms ); // base on vTaskDelay - switch to sheduler
 void delay_mcs( uint32_t mcs );
 // dumb delay fuctions - loop based - for use w/o timer and for small times
@@ -153,9 +170,11 @@ uint8_t numFirstBit( uint32_t a );
 
 extern const char hex_digits[];
 extern const char dec_digits[];
+
 // 64/log_2[10] \approx 20
 #define INT_STR_SZ_DEC 24
 #define INT_STR_SZ_HEX 20
+
 // converts char to hex represenration (2 digits+EOL, store to s)
 char* char2hex( char c, char *s );
 // converts uint32 to hex represenration (8(64=16) digits+EOL, store to s)

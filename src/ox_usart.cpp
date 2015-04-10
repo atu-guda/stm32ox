@@ -121,8 +121,9 @@ int Usart::sendBlockLoop( const char* d, int n )
   }
 
   int ns = 0, nl = 0;
-  for( ; *d; ++d ) { // BUG!
+  for( int i=0; i<n; ++i,++d ) {
     while( checkFlag( USART_FLAG_TXE ) == RESET ) {
+      delay_mcs( 100 );
       taskYieldFun();
       ++nl;
       if( nl >= wait_tx ) {

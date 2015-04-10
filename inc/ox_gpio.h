@@ -69,6 +69,7 @@ class PinsOut
    const uint16_t mask;
 };
 extern PinsOut leds;
+void die4led( uint16_t n );
 
 
 #endif
