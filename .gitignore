@@ -27,3 +27,11 @@
 # vim swaps
 .*.swp
 
+# misc data files
+*.dat
+
+# special files
+git_push_origin_master.txt
+src/clock_in/*
+src/misc/*
+
