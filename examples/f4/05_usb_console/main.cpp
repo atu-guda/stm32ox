@@ -204,6 +204,18 @@ int cmd_test0( int argc, const char * const * argv )
   const char *nm = pcTaskGetTaskName( 0 );
   pr( "name: \"" ); pr( nm ); pr( "\"" NL );
 
+  pr( "RCC: CR= " ); pr_h( RCC->CR );
+  pr( "  PLLCFGC= " ); pr_h( RCC->PLLCFGR );
+  pr( "  CIR= " );    pr_h( RCC->CIR );
+  pr( NL );
+
+  pr( "  AHB1ENR= " ); pr_h( RCC->AHB1ENR );
+  pr( "  AHB2ENR= " ); pr_h( RCC->AHB2ENR );
+  pr( "  AHB3ENR= " ); pr_h( RCC->AHB3ENR );
+  pr( NL );
+  pr( "  APB1ENR= " ); pr_h( RCC->APB1ENR );
+  pr( "  APB2ENR= " ); pr_h( RCC->APB2ENR );
+
   // usbotg.sendStr( "USB" NL );
   // delay_ms( 10 );
   // pr( NL "sendstr. "  NL );
